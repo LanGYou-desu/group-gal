@@ -47,6 +47,10 @@ export interface Bgm {
   set(track: TrackName): void;
   /** 翻转开关，返回翻转后的状态 */
   toggle(): boolean;
+  /** 当前是否开启 */
+  isOn(): boolean;
+  /** 显式设置开关（设置面板按布尔值设定，不能只靠 toggle 翻转） */
+  setOn(on: boolean): void;
 }
 
 export const BGM: Bgm = (() => {
@@ -153,6 +157,12 @@ export const BGM: Bgm = (() => {
       on = !on;
       if (ctx) rampTo(level(), 0.25);
       return on;
+    },
+    isOn: () => on,
+    setOn(next) {
+      if (on === next) return;
+      on = next;
+      if (ctx) rampTo(level(), 0.25);
     },
   };
 })();

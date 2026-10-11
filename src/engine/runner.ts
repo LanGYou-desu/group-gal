@@ -14,6 +14,21 @@ export interface GameEnv {
   readonly labels: LabelIndex;
   readonly chars: CharTable;
   readonly beData: Readonly<Record<BeId, BadEndData>>;
+  /**
+   * 每个节点**执行前**的回调，参数是该节点自身的下标。
+   *
+   * 时机很关键：`run` 是先回调再 `session.ip++`，所以回调里读到的
+   * `session.ip` 正指向这个节点。自动存档靠它在选择点存下指针——
+   * 若改到节点执行之后再回调，读档会跳过那个选择（Review Focus #2）。
+   */
+  readonly onNode?: (ip: number, node: Node) => void;
+  /**
+   * 每个节点开始前询问「是否应当中止」。返回 true 则 `run` 立即返回。
+   *
+   * 用于读档：载入新存档时必须作废仍在跑的那个 `run`，否则它会在
+   * 延迟结束后继续就地修改同一个 `Session`，与新的 `run` 打架。
+   */
+  readonly shouldStop?: () => boolean;
 }
 
 /** 快进时的等待上限（现状是 Math.min(ms, 60)）。 */
@@ -51,10 +66,13 @@ function resolveTarget(labels: LabelIndex, label: string): number {
  * - hub 的 once 过滤上移到引擎，渲染器只拿到可用选项
  */
 export async function run(session: Session, env: GameEnv, r: Renderer): Promise<void> {
-  const { script, labels, chars, beData } = env;
+  const { script, labels, chars, beData, onNode, shouldStop } = env;
 
   while (session.ip < script.length) {
+    if (shouldStop?.()) return;
+
     const node: Node = script[session.ip]!;
+    onNode?.(session.ip, node);
     session.ip++;
 
     switch (node.kind) {

@@ -18,6 +18,9 @@ export interface Shell {
   readonly ovCard: HTMLElement;
   readonly toasts: HTMLElement;
   readonly stageSil: HTMLElement;
+  readonly panel: HTMLElement;
+  readonly panelTitle: HTMLElement;
+  readonly panelBody: HTMLElement;
   readonly mCount: HTMLElement;
   readonly mWater: HTMLElement;
   readonly btnStart: HTMLButtonElement;
@@ -25,6 +28,10 @@ export interface Shell {
   readonly btnBgmTitle: HTMLButtonElement;
   readonly btnMembers: HTMLButtonElement;
   readonly btnCloseDr: HTMLButtonElement;
+  readonly btnBacklog: HTMLButtonElement;
+  readonly btnSaves: HTMLButtonElement;
+  readonly btnSettings: HTMLButtonElement;
+  readonly btnPanelClose: HTMLButtonElement;
   readonly btnRepeat: HTMLButtonElement;
   readonly btnFast: HTMLButtonElement;
   readonly btnBgm: HTMLButtonElement;
@@ -52,6 +59,9 @@ const SHELL_HTML = `
       </div>
       <div class="tb-right">
         <button id="btnMembers" class="mini">群成员</button>
+        <button id="btnBacklog" class="mini">回想</button>
+        <button id="btnSaves" class="mini">存档</button>
+        <button id="btnSettings" class="mini">设置</button>
         <button id="btnRepeat" class="mini">复读</button>
         <button id="btnFast" class="mini">快进</button>
         <button id="btnBgm" class="mini">🔊</button>
@@ -67,6 +77,11 @@ const SHELL_HTML = `
   <div id="drawer" class="drawer">
     <div class="dr-h"><b>群成员</b><button class="mini" id="btnCloseDr">关闭</button></div>
     <div class="dr-list" id="drList"></div>
+  </div>
+
+  <div id="panel" class="drawer">
+    <div class="dr-h"><b id="panelTitle">面板</b><button class="mini" id="btnPanelClose">关闭</button></div>
+    <div class="dr-list" id="panelBody"></div>
   </div>
 
   <div id="overlay" class="overlay hidden"><div class="ov" id="ovCard"></div></div>
@@ -85,12 +100,17 @@ export function mountShell(root: HTMLElement): Shell {
     title: need('title'), game: need('game'), chat: need('chat'), composer: need('composer'),
     drawer: need('drawer'), drList: need('drList'), overlay: need('overlay'),
     ovCard: need('ovCard'), toasts: need('toasts'), stageSil: need('stageSil'),
+    panel: need('panel'), panelTitle: need('panelTitle'), panelBody: need('panelBody'),
     mCount: need('mCount'), mWater: need('mWater'),
     btnStart: need<HTMLButtonElement>('btnStart'),
     btnAbout: need<HTMLButtonElement>('btnAbout'),
     btnBgmTitle: need<HTMLButtonElement>('btnBgmTitle'),
     btnMembers: need<HTMLButtonElement>('btnMembers'),
     btnCloseDr: need<HTMLButtonElement>('btnCloseDr'),
+    btnBacklog: need<HTMLButtonElement>('btnBacklog'),
+    btnSaves: need<HTMLButtonElement>('btnSaves'),
+    btnSettings: need<HTMLButtonElement>('btnSettings'),
+    btnPanelClose: need<HTMLButtonElement>('btnPanelClose'),
     btnRepeat: need<HTMLButtonElement>('btnRepeat'),
     btnFast: need<HTMLButtonElement>('btnFast'),
     btnBgm: need<HTMLButtonElement>('btnBgm'),
