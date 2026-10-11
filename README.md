@@ -19,6 +19,20 @@ npm run build        # 产出单个 HTML：dist/index.html
 
 `dist/index.html` 是**自包含单文件**——无外部脚本、无外部样式、无外部资源。双击即可离线游玩，也可以直接发给别人。
 
+## 在线试玩
+
+推送到 `main` 后，GitHub Actions 会自动构建并部署到 GitHub Pages：
+
+```
+https://<你的用户名>.github.io/group-gal/
+```
+
+首次启用：仓库 **Settings → Pages → Source** 选 **GitHub Actions**。
+
+> ⚠️ 仓库**根目录的 `index.html` 是 Vite 的开发入口**，只有 `<div id="app">` 加一行
+> 模块引用——它必须经 `npm run dev` 或构建才能运行。**直接双击打开会显示一段提示而不是游戏**。
+> 想立刻玩：上面那个 Pages 链接，或仓库里的 `group-chat-galgame.html`（原版单文件，双击即玩）。
+
 ## 全部命令
 
 | 命令 | 作用 |
