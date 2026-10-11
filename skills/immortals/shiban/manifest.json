@@ -1,0 +1,22 @@
+{
+  "slug": "shiban",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:28Z",
+  "sources_summarized": [
+    "对话集 dialogues/🪨🦓🐟_1505397142.md（78 条 · 10-08 14:41 ~ 10-10 20:52）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "23429de80593a67a49fbec9b01f48186a2ac4bcf5a4c0f689114117d00c1fc6c",
+    "interaction.md": "747c3bab359b37f83c8b84e1a93944afc74e2bf95955dbc9c17f997f87bc1640",
+    "memory.md": "e5aa4b292da99a1fbdae3e4486fd9d04a544c32eda5ef8e83ef3e4fc8c633d20",
+    "conflicts.md": "fff14eeb1535c842582fd7d424fc9d6d0a220c3f8a1af4ec6e5e50dacf46084b",
+    "SKILL.md": "a4e5cfa935ddab4415f191dbc00871662f301a827c6a8f3726811dcad76664e1"
+  }
+}

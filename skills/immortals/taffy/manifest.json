@@ -1,0 +1,22 @@
+{
+  "slug": "taffy",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:28Z",
+  "sources_summarized": [
+    "对话集 dialogues/石蒜神是我爸爸_3077017046.md（53 条 · 10-10 14:16 ~ 10-10 23:31）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "0764e38c7e473f10a0f2f7454e5fa49799ac0960e2782027da65454286ecc1db",
+    "interaction.md": "2cc47f73d1b0d89d49d63e560762de04425467a83be3ed41c485fff277625145",
+    "memory.md": "fb36443391ee7538e5f27d5b665bcd37e166c75e0ead402fd10cc338fa5a102d",
+    "conflicts.md": "947c1feca5d5dbf0a41faffc6dd76a69695ff74a2fe1510123a9c9c93ec385e0",
+    "SKILL.md": "62a022831282bf730abb37fbdb50410b248cfdc30c8c326adb5d96bb1363bae0"
+  }
+}

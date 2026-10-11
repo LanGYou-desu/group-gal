@@ -1,0 +1,22 @@
+{
+  "slug": "tttt",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:28Z",
+  "sources_summarized": [
+    "对话集 dialogues/Tttt_3810258469.md（234 条 · 10-08 16:12 ~ 10-10 23:30）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "1f36e76e55d37dc9fa9b14f844b664d3707fdb3a4f2b8f9a9120e119a58c1f5b",
+    "interaction.md": "37f6a5d7d57832c165d17fd26c3468578dd5f2a29d5333cb70a6a53de7ae153d",
+    "memory.md": "2727d25febbe36b84851c63ce3f0164c35f0b7064c329babc8c5701126f1b2e5",
+    "conflicts.md": "73004e8fc835669637cf6de6fa1af00e84ec2e292b487f8addb214b2b7750d75",
+    "SKILL.md": "ab6da80f92865b54489204d215f0b9f65e5f5d5c5760662120a725924eb93d7e"
+  }
+}

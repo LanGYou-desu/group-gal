@@ -1,0 +1,22 @@
+{
+  "slug": "liuli",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:27Z",
+  "sources_summarized": [
+    "对话集 dialogues/墨染琉璃_2911386671.md（81 条 · 10-08 18:45 ~ 10-10 22:33）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "21df55a52db530dc2e072f8ccbf64d8e8eab943c077138ce5046946f27959157",
+    "interaction.md": "40dfd71dcfee04eb7b29dd949fe9d645c4a86318e197c6ef323cb8523d64483d",
+    "memory.md": "938001a70ac5710eca6af236c983f88c065904f5f2b6db1cd643238751377291",
+    "conflicts.md": "25f27f9924dfb7f9b8ebf14cbd9b2eda9c1b4bb097580d2dc0cdca7656582a5b",
+    "SKILL.md": "21a6c0ed5fc861e2c927f07a23a61cb9b8994f360618123bf93ced90a6da6641"
+  }
+}

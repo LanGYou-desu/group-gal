@@ -1,0 +1,22 @@
+{
+  "slug": "lusi",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:28Z",
+  "sources_summarized": [
+    "对话集 dialogues/正在攒钱购入音符露丝_1620090731.md（174 条 · 09-26 00:45 ~ 09-27 22:57）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "cc9af2f1f6f27ef7dc3d8067c485fe1e4400777a7b9364b34131255ed8b5ebb7",
+    "interaction.md": "6de35129c53c6ac4db318e8649c244b4b038f98402b8ab5d10544e5b15e9db47",
+    "memory.md": "d7b5f34bc4cd770d9a382eacde3ed1b93e855b0fcc4f5288f3cd71f6d2378344",
+    "conflicts.md": "c235e58c794be77d8c4236e8753a06b206ae63113e963499efae77f87430eef6",
+    "SKILL.md": "5089e1ec6f145d46cd05ce786b4f72dfd93cefa73356ddc284c48ff59cdd2cd5"
+  }
+}

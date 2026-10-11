@@ -1,0 +1,22 @@
+{
+  "slug": "obra",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:28Z",
+  "sources_summarized": [
+    "对话集 dialogues/即将玩_Return of the Obra Dinn_3634435920.md（253 条 · 09-26 00:42 ~ 09-29 14:26）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "2bddc55ff2da4745e74d268b327e380f127dced077b6c6ef692ac5724c19d04c",
+    "interaction.md": "63442d76728a544cd3c2ca322eb224f4a0e6590159c495874284fc986e47dee2",
+    "memory.md": "402a46a7b8796ce09e8334fda4a0b72d49c927eee690695e2828a0369aec9a01",
+    "conflicts.md": "4cde1be26258e1c40df6444700c9e89cc5f11939b23f91ae752efdbe4e020966",
+    "SKILL.md": "2333dd3df4a387eae3fad7132f20221437c530572188bf3b999208c292d0e0e9"
+  }
+}

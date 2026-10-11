@@ -34,10 +34,18 @@
 ├── members.zip                    # 52 份按 QQ 号归档的群聊记录（原始导出）
 ├── dialogues/                     # 按人拆分后的对话集（52 个 <昵称>_<QQ>.md + INDEX.md）
 ├── report.pdf                     # 两批群聊记录综合分析报告（23 页）
+├── skills/
+│   ├── immortal-skill/            # 数字永生框架（vendored：SKILL.md / personas / prompts / recipes / kit）
+│   └── immortals/                 # ★ 20 位群友的人设包（SKILL.md + 三维度 + conflicts + manifest）
+│       ├── README.md              # 人设档案室索引
+│       └── _evidence/             # 蒸馏用「语料摘要」（工作材料）
 ├── tools/
 │   ├── validate.js                # 剧本完整性 + 全路线可达性校验（node，零依赖）
 │   ├── smoke-test.js              # jsdom 端到端冒烟测试（可选，需 jsdom）
-│   └── split-dialogues.py         # members.zip → dialogues/ 按人拆分脚本
+│   ├── split-dialogues.py         # members.zip → dialogues/ 按人拆分脚本
+│   ├── mine-persona-evidence.py   # dialogues/ → _evidence/ 语料摘要（高频短语/主题/互动）
+│   ├── verify-personas.py         # 人设包质检（结构 / 证据纪律 / 引文真实性 / 脱敏）
+│   └── audit-quotes.py            # 引文来源审计（省略号分段核验，0 风险为准）
 └── docs/                          # 本 Code Wiki
 ```
 
@@ -51,6 +59,8 @@
 | 写新剧情 | 读 [04-数据模型与剧本 DSL](./04-数据模型与剧本DSL.md) 的「节点速查」一节 |
 | 校验剧本修改没写坏 | `node tools/validate.js`（脚本与说明见 [05-依赖关系与运行方式](./05-依赖关系与运行方式.md#6-剧本校验脚本)） |
 | 跑一遍端到端冒烟 | `npm i -D jsdom && node tools/smoke-test.js`（覆盖分岔/通关/复读/抽屉/回收室/hub 支线） |
+| 看群友人设档案 | [skills/immortals/README.md](../skills/immortals/README.md)（20 位群友的语料蒸馏人设包） |
+| 复制一位群友来对戏 | 把 `skills/immortals/<slug>/` 放进 agent 技能目录，或直接投喂 `SKILL.md` + 维度文件 |
 
 ## 5. 版本速查
 

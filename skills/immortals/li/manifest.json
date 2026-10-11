@@ -1,0 +1,22 @@
+{
+  "slug": "li",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:27Z",
+  "sources_summarized": [
+    "对话集 dialogues/李_2581804638.md（50 条 · 09-27 20:40 ~ 09-27 23:33）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "038f106ccee077c60f46d8a3f35f2b0db58adf202b20144064735b175fe4dab2",
+    "interaction.md": "3a7f2daa39cffb7af792b35bc35a3125b521e7d742252aecb148035a6eeb7a0a",
+    "memory.md": "a95fa2a8fcd05a51ec0c2e56bba33858e9b54b73c5cfa8ff9e699fd48032e210",
+    "conflicts.md": "415f8faab56ad947f3560114f90221802229fd256a7176b674850fa8b12c1f3b",
+    "SKILL.md": "0d0a5cb2e4675192581005bacb75d16763c73c42d2801f5c056db00c5b8c7dd4"
+  }
+}
