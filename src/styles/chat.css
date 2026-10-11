@@ -127,7 +127,9 @@
   flex:1;overflow-y:auto;
   padding-block:var(--sp-3) var(--sp-2);
   /* 可读列上限：宽屏上不让气泡散进巨大的空白里 */
-  padding-inline:max(var(--sp-3), calc((100% - 720px) / 2));
+  /* 消息铺满聊天区，而不是居中成一条窄列——真实聊天客户端就是这样，
+   他人贴左、自己贴右，两边都用到。宽度上限交给气泡自身的 max-width。 */
+  padding-inline:clamp(var(--sp-3), 2.4vw, 40px);
   scroll-behavior:smooth;
   overscroll-behavior-y:contain;
 }
@@ -216,7 +218,9 @@
 /* ---------- 输入区（承载的是选项，不是打字） ---------- */
 .composer{
   padding-block:var(--sp-2) var(--sp-2);
-  padding-inline:max(var(--sp-3), calc((100% - 720px) / 2));
+  /* 消息铺满聊天区，而不是居中成一条窄列——真实聊天客户端就是这样，
+   他人贴左、自己贴右，两边都用到。宽度上限交给气泡自身的 max-width。 */
+  padding-inline:clamp(var(--sp-3), 2.4vw, 40px);
   background:var(--qq-panel);
   border-top:1px solid var(--qq-line-soft);
   max-height:56vh;
