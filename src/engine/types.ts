@@ -81,8 +81,18 @@ export type Script = readonly Node[];
 
 export type LabelIndex = Readonly<Record<Label, number>>;
 
-export interface EndingData {
+/** Bad End 文案。`tag` 恒为 "BAD END"（源文件里每条都显式写了）。 */
+export interface BadEndData {
   readonly tag: string;
+  readonly title: string;
+  readonly text: string;
+}
+
+/**
+ * 路线结局文案。**没有 `tag`** —— 源文件的 ENDING 条目只有 title/text，
+ * 弹窗上的「END · 路线序章」是渲染层硬编码的（见 :823）。
+ */
+export interface RouteEndingData {
   readonly title: string;
   readonly text: string;
 }
