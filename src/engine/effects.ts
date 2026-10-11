@@ -1,5 +1,5 @@
 import type {
-  AffDelta, AffToastItem, CharTable, GameState, Session,
+  AffDelta, AffToastItem, CharTable, GameState, Session, SessionProgress,
 } from './types';
 
 export const SCHEMA_VERSION = 1;
@@ -33,6 +33,11 @@ export function createInitialState(): GameState {
     lastRepeat: '',
     repeatN: 0,
   };
+}
+
+/** 空进度。新开一局、以及从 v1 老存档迁移时都用它。 */
+export function createInitialProgress(): SessionProgress {
+  return { visited: {}, checkpoints: {}, historyLens: {} };
 }
 
 /**

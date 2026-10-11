@@ -20,6 +20,14 @@ const SLOT_LABEL: Record<SaveSlotId, string> = {
   s3: '存档 3',
 };
 
+/** 时间戳 → `YYYY-MM-DD HH:MM`。没有时间戳时回落一个破折号。 */
+function stamp(ms: number | null): string {
+  if (ms === null || !Number.isFinite(ms)) return '——';
+  const d = new Date(ms);
+  const p = (n: number): string => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
 function button(text: string, action: string, cls: string): HTMLButtonElement {
   const b = document.createElement('button');
   b.className = cls;
@@ -56,7 +64,7 @@ export function renderSaves(
       meta.className = 's';
       meta.textContent = slot.empty
         ? '空'
-        : `${slot.ip} / ${SCRIPT.length}　水群值 ${slot.water}`;
+        : `${slot.ip} / ${SCRIPT.length}　水群值 ${slot.water}　·　${stamp(slot.savedAt)}`;
       info.appendChild(meta);
 
       row.appendChild(info);

@@ -116,13 +116,38 @@ export type LogEntry =
   | { readonly kind: 'sys';  readonly text: string }
   | { readonly kind: 'note'; readonly text: string };
 
-/** 存档单位：状态 + 剧本指针 + 历史。三者都是纯 JSON。
+/**
+ * 关键节点首次抵达时的状态快照。
+ *
+ * **故意不含 `schemaVersion`**：那是存档格式的版本，随存档一起走，
+ * 不属于某一次游玩进度。恢复快照时再补回当前版本（见 route-map.ts 的 fromCheckpoint）。
+ */
+export type CheckpointState = Omit<GameState, 'schemaVersion'>;
+
+/** 游玩进度。属于 Session（存档单位），随存档一起序列化。 */
+export interface SessionProgress {
+  /** 抵达过的 label */
+  visited: Record<string, true>;
+  /** 关键节点（choice / hub）首次抵达时的状态快照，键为 label */
+  checkpoints: Record<string, CheckpointState>;
+  /**
+   * 关键节点首次抵达时的 `history` 长度。
+   *
+   * 跳转时据此把历史截断回那一刻——否则从该 label 重跑会把「被打断之后
+   * 已经入队」的消息再追加一遍，回想与聊天流都会出现重复。
+   */
+  historyLens: Record<string, number>;
+}
+
+/** 存档单位：状态 + 剧本指针 + 历史 + 进度。四者都是纯 JSON。
  *  字段可变——`run()` 把它当作可变工作副本就地推进。 */
 export interface Session {
   state: GameState;
   /** 剧本节点指针：指向「下一个待执行节点」 */
   ip: number;
   history: LogEntry[];
+  /** 路线图进度：抵达过的 label 与关键节点的状态快照。 */
+  progress: SessionProgress;
 }
 
 /** 等待时长策略。快进开关在这里生效。

@@ -2,10 +2,10 @@ import type { DelayPolicy } from '../engine/types';
 import { DEFAULT_SETTINGS, type SettingsData, type TextSpeed } from './storage';
 
 /**
- * 设置面板。同样是内联二次确认，不用 `confirm()`。
+ * 设置面板 —— VN 的配置画面观感：分组的横排标签 + 选项行。
  *
- * 注意设置与**快进**是两回事：文字速度是持久化的偏好，
- * 而快进是临时的、每局重置（阶段 1 已定，见 main.ts 的 startGame）。
+ * 与重做前一致的行为：内联二次确认，不用 `confirm()`（该 API 在嵌框环境下不可用）；
+ * 设置与**快进**是两回事——文字速度是持久化偏好，快进是临时开关、每局重置。
  */
 export interface SettingsHandlers {
   onChange(next: SettingsData): void;
@@ -28,6 +28,21 @@ export function delaysForSpeed(
 const SPEED_LABEL: Record<TextSpeed, string> = { slow: '慢', normal: '普通', fast: '快' };
 const SPEEDS: readonly TextSpeed[] = ['slow', 'normal', 'fast'];
 
+/** 分组：横排标签 + 一条延伸的细线，VN 配置画面的分组惯例。 */
+function group(title: string): { box: HTMLElement; body: HTMLElement } {
+  const box = document.createElement('section');
+  box.className = 'set-group';
+
+  const head = document.createElement('div');
+  head.className = 'set-group-h';
+  head.textContent = title;
+  const rule = document.createElement('span');
+  head.appendChild(rule);
+  box.appendChild(head);
+
+  return { box, body: box };
+}
+
 export function renderSettings(
   host: HTMLElement,
   current: SettingsData,
@@ -38,92 +53,113 @@ export function renderSettings(
   function draw(): void {
     host.innerHTML = '';
 
-    /* ---- BGM ---- */
-    const bgmRow = document.createElement('label');
-    bgmRow.className = 'set-row';
+    /* ---- 音频 ---- */
+    const audio = group('音频');
+    {
+      const row = document.createElement('label');
+      row.className = 'set-row';
 
-    const bgm = document.createElement('input');
-    bgm.type = 'checkbox';
-    bgm.checked = current.bgm;
-    bgm.dataset['setting'] = 'bgm';
-    bgm.addEventListener('change', () => {
-      current = { ...current, bgm: bgm.checked };
-      handlers.onChange(current);
-    });
+      const label = document.createElement('span');
+      label.className = 'set-lbl';
+      label.textContent = '背景音乐';
+      row.appendChild(label);
 
-    const bgmText = document.createElement('span');
-    bgmText.textContent = '背景音乐';
-    bgmRow.append(bgm, bgmText);
-    host.appendChild(bgmRow);
-
-    /* ---- 文字速度 ---- */
-    const speedRow = document.createElement('div');
-    speedRow.className = 'set-row';
-
-    const speedLabel = document.createElement('span');
-    speedLabel.textContent = '文字速度';
-    speedRow.appendChild(speedLabel);
-
-    const group = document.createElement('div');
-    group.className = 'set-speeds';
-    for (const s of SPEEDS) {
-      const b = document.createElement('button');
-      b.className = 'mini';
-      b.textContent = SPEED_LABEL[s];
-      b.dataset['speed'] = s;
-      b.setAttribute('aria-pressed', String(current.speed === s));
-      b.addEventListener('click', () => {
-        current = { ...current, speed: s };
+      const bgm = document.createElement('input');
+      bgm.type = 'checkbox';
+      bgm.checked = current.bgm;
+      bgm.dataset['setting'] = 'bgm';
+      bgm.addEventListener('change', () => {
+        current = { ...current, bgm: bgm.checked };
         handlers.onChange(current);
-        draw();
       });
-      group.appendChild(b);
+      row.appendChild(bgm);
+
+      audio.body.appendChild(row);
     }
-    speedRow.appendChild(group);
-    host.appendChild(speedRow);
+    host.appendChild(audio.box);
 
-    /* ---- 说明 ---- */
-    const hint = document.createElement('p');
-    hint.className = 'set-hint';
-    hint.textContent = '「快进」是临时开关，每局重新开始时自动关闭，与这里的设置无关。';
-    host.appendChild(hint);
+    /* ---- 文字 ---- */
+    const text = group('文字');
+    {
+      const row = document.createElement('div');
+      row.className = 'set-row';
 
-    /* ---- 清除存档 ---- */
-    const danger = document.createElement('div');
-    danger.className = 'set-row';
+      const label = document.createElement('span');
+      label.className = 'set-lbl';
+      label.textContent = '文字速度';
+      row.appendChild(label);
 
-    if (confirmingClear) {
-      const q = document.createElement('span');
-      q.textContent = '确认清除全部存档？此操作不可撤销。';
-      danger.appendChild(q);
+      const speeds = document.createElement('div');
+      speeds.className = 'set-speeds';
+      for (const s of SPEEDS) {
+        const b = document.createElement('button');
+        b.className = 'mini';
+        b.textContent = SPEED_LABEL[s];
+        b.dataset['speed'] = s;
+        b.setAttribute('aria-pressed', String(current.speed === s));
+        b.addEventListener('click', () => {
+          current = { ...current, speed: s };
+          handlers.onChange(current);
+          draw();
+        });
+        speeds.appendChild(b);
+      }
+      row.appendChild(speeds);
+      text.body.appendChild(row);
 
-      const yes = document.createElement('button');
-      yes.className = 'mini danger';
-      yes.textContent = '确认清除';
-      yes.dataset['action'] = 'clear-confirm';
-      yes.addEventListener('click', () => {
-        confirmingClear = false;
-        handlers.onClearSaves();
-        draw();
-      });
-      danger.appendChild(yes);
-
-      const no = document.createElement('button');
-      no.className = 'mini';
-      no.textContent = '取消';
-      no.dataset['action'] = 'clear-cancel';
-      no.addEventListener('click', () => { confirmingClear = false; draw(); });
-      danger.appendChild(no);
-    } else {
-      const btn = document.createElement('button');
-      btn.className = 'mini danger';
-      btn.textContent = '清除全部存档';
-      btn.dataset['action'] = 'clear';
-      btn.addEventListener('click', () => { confirmingClear = true; draw(); });
-      danger.appendChild(btn);
+      const hint = document.createElement('p');
+      hint.className = 'set-hint';
+      hint.textContent = '「快进」是临时开关，每局重新开始时自动关闭，与这里的设置无关。';
+      text.body.appendChild(hint);
     }
+    host.appendChild(text.box);
 
-    host.appendChild(danger);
+    /* ---- 数据 ---- */
+    const data = group('数据');
+    {
+      const row = document.createElement('div');
+      row.className = 'set-row';
+
+      if (confirmingClear) {
+        const q = document.createElement('span');
+        q.className = 'set-lbl';
+        q.textContent = '确认清除全部存档？此操作不可撤销。';
+        row.appendChild(q);
+
+        const yes = document.createElement('button');
+        yes.className = 'mini danger';
+        yes.textContent = '确认清除';
+        yes.dataset['action'] = 'clear-confirm';
+        yes.addEventListener('click', () => {
+          confirmingClear = false;
+          handlers.onClearSaves();
+          draw();
+        });
+        row.appendChild(yes);
+
+        const no = document.createElement('button');
+        no.className = 'mini';
+        no.textContent = '取消';
+        no.dataset['action'] = 'clear-cancel';
+        no.addEventListener('click', () => { confirmingClear = false; draw(); });
+        row.appendChild(no);
+      } else {
+        const label = document.createElement('span');
+        label.className = 'set-lbl';
+        label.textContent = '存档记录';
+        row.appendChild(label);
+
+        const btn = document.createElement('button');
+        btn.className = 'mini danger';
+        btn.textContent = '清除全部存档';
+        btn.dataset['action'] = 'clear';
+        btn.addEventListener('click', () => { confirmingClear = true; draw(); });
+        row.appendChild(btn);
+      }
+
+      data.body.appendChild(row);
+    }
+    host.appendChild(data.box);
   }
 
   draw();

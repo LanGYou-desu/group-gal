@@ -14,14 +14,17 @@ import { renderMembers } from './ui/drawer';
 import { renderBacklog } from './ui/backlog';
 import { renderSaves } from './ui/saves';
 import { delaysForSpeed, renderSettings } from './ui/settings';
+import { renderRouteMap } from './ui/route-map';
 import {
   AUTOSAVE_ID, SAVE_SLOTS, deleteSlot, listSlots, readSettings, readSlot,
   writeSettings, writeSlot, type SaveSlotId, type SettingsData,
 } from './ui/storage';
-import { CHARS } from './content/characters';
+import { CHARS, HERO_KEYS } from './content/characters';
 import { LABELS, SCRIPT } from './content/chapters';
 import { BEDATA } from './content/endings';
-import { applyRepeat, createInitialState } from './engine/effects';
+import { sil } from './ui/silhouettes';
+import { applyRepeat, createInitialProgress, createInitialState } from './engine/effects';
+import { buildRouteMap, fromCheckpoint, recordArrival } from './engine/route-map';
 import { run } from './engine/runner';
 import { BGM } from './audio/bgm';
 import type { DelayPolicy, LogEntry, Node, Session } from './engine/types';
@@ -30,7 +33,19 @@ const root = document.getElementById('app');
 if (!root) throw new Error('缺少挂载点 #app');
 
 const shell = mountShell(root);
-const chat = createChatView(shell.chat, shell.stageSil, CHARS);
+
+/**
+ * 桌面端会话列表里的「最后一条消息」预览。
+ * 直接取聊天流的最后一条（自己的消息也算，QQ 也是这么显示的）；
+ * 一条都没有时给个中性占位，不编造文案。
+ */
+function syncPreview(): void {
+  const items = shell.chat.querySelectorAll('.msg .bub, .sys span');
+  const last = items[items.length - 1];
+  shell.convPrev.textContent = (last?.textContent ?? '').trim() || '还没有消息';
+}
+
+const chat = createChatView(shell.chat, shell.stageSil, CHARS, syncPreview);
 const composer = createComposer(shell.composer);
 const overlay = createOverlay(shell.overlay, shell.ovCard, CHARS);
 const toasts = createToasts(shell.toasts);
@@ -50,8 +65,13 @@ const renderer = createRenderer({ chat, composer, overlay, toasts, delays });
 let runToken = 0;
 let running = false;
 
+/** 路线图只依赖静态剧本，构建一次即可。 */
+const routeMap = buildRouteMap(SCRIPT, LABELS);
+
 /** 就地替换 session 的内容——**不能重新赋值**，run() 持有的是同一个对象引用。 */
-let session: Session = { state: createInitialState(), ip: 0, history: [] };
+let session: Session = {
+  state: createInitialState(), ip: 0, history: [], progress: createInitialProgress(),
+};
 
 function updateTop(): void {
   shell.mCount.textContent = String(session.state.members);
@@ -83,6 +103,7 @@ function snapshotSession(): Session {
     state: session.state,
     ip: pendingChoiceIp ?? session.ip,
     history: session.history,
+    progress: session.progress,
   };
 }
 
@@ -93,6 +114,10 @@ async function startRun(): Promise<void> {
     await run(session, {
       script: SCRIPT, labels: LABELS, chars: CHARS, beData: BEDATA,
       onNode: (ip, node: Node) => {
+        // 抵达任意 label 记进度；choice/hub 类关键节点还会在首次抵达时存状态快照
+        if (node.kind === 'label') {
+          recordArrival(session.progress, routeMap, node.name, session.state, session.history.length);
+        }
         if (node.kind === 'choice' || node.kind === 'hub') {
           pendingChoiceIp = ip;
           writeSlot(AUTOSAVE_ID, snapshotSession());
@@ -121,6 +146,7 @@ function applySettings(next: SettingsData): void {
 }
 
 async function startGame(): Promise<void> {
+  setMenu(false);
   shell.title.classList.add('hidden');
   shell.game.classList.remove('hidden');
 
@@ -129,6 +155,7 @@ async function startGame(): Promise<void> {
   session.state = createInitialState();
   session.ip = 0;
   session.history = [];
+  session.progress = createInitialProgress();
   chat.clear();
   composer.idle();
   updateTop();
@@ -149,6 +176,7 @@ async function startGame(): Promise<void> {
 function backToTitle(): void {
   overlay.close();
   closePanel();
+  setMenu(false);
   shell.game.classList.add('hidden');
   shell.title.classList.remove('hidden');
   shell.stageSil.innerHTML = '';
@@ -164,6 +192,7 @@ function loadSession(loaded: Session): void {
   session.state = loaded.state;
   session.ip = loaded.ip;
   session.history = loaded.history;
+  session.progress = loaded.progress;
 
   replayHistory(loaded.history);
   updateTop();
@@ -177,9 +206,43 @@ function loadSession(loaded: Session): void {
   void startRun();
 }
 
-/* ---------- 面板（回想 / 存档 / 设置共用） ---------- */
+/**
+ * 跳到某个已达的关键节点。语义与读档一致——**就地**替换 session 内容：
+ * 恢复该节点首次抵达时的状态快照、指针拨回该 label、把历史截断回那一刻、
+ * 重放现场、从该 label 重新起跑。
+ *
+ * ⚠️ `run()` 持有同一个 session 对象引用，只能改字段、不能整个重新赋值。
+ */
+function jumpTo(label: string): void {
+  const node = routeMap.nodes[label];
+  const checkpoint = session.progress.checkpoints[label];
+  if (!node || !checkpoint) { toasts.toast('这个节点还没走到，跳不了'); return; }
 
-function openPanel(title: string, draw: (body: HTMLElement) => void): void {
+  runToken++;                                   // 作废当前 run
+  pendingChoiceIp = null;
+  composer.idle();                              // 清掉可能还挂着的旧选项按钮
+
+  session.state = fromCheckpoint(checkpoint);
+  session.ip = LABELS[label] ?? 0;
+  session.history = session.history.slice(0, session.progress.historyLens[label] ?? 0);
+
+  replayHistory(session.history);
+  updateTop();
+  renderMembers(shell.drList, CHARS, session.state);
+  closePanel();
+
+  shell.title.classList.add('hidden');
+  shell.game.classList.remove('hidden');
+
+  BGM.set('chat');
+  void startRun();
+  toasts.toast(`已跳转到「${node.title}」`);
+}
+
+/* ---------- 面板（回想 / 存档 / 设置 / 路线共用） ---------- */
+
+function openPanel(title: string, draw: (body: HTMLElement) => void, wide = false): void {
+  shell.panel.classList.toggle('wide', wide);
   shell.panelTitle.textContent = title;
   shell.panelBody.innerHTML = '';
   shell.panel.classList.add('open');
@@ -189,6 +252,15 @@ function openPanel(title: string, draw: (body: HTMLElement) => void): void {
 function closePanel(): void {
   shell.panel.classList.remove('open');
 }
+
+/* ---------- 顶栏的 ⋯ 群工具菜单 ---------- */
+
+function setMenu(open: boolean): void {
+  shell.tbMenu.classList.toggle('hidden', !open);
+  shell.btnMenu.setAttribute('aria-expanded', String(open));
+}
+
+const menuOpen = (): boolean => !shell.tbMenu.classList.contains('hidden');
 
 function openSavesPanel(): void {
   openPanel('存档', body => renderSaves(body, listSlots(), {
@@ -214,6 +286,11 @@ function openSettingsPanel(): void {
   }));
 }
 
+function openRoutePanel(): void {
+  openPanel('路线', body =>
+    renderRouteMap(body, routeMap, session.progress, { onJump: jumpTo }), true);
+}
+
 /* ---------- 接线 ---------- */
 
 overlay.onRestart = () => { void startGame(); };
@@ -224,6 +301,18 @@ shell.btnAbout.onclick = () => overlay.showAbout(() => { void startGame(); });
 
 shell.btnBgmTitle.onclick = () => { applySettings({ ...settings, bgm: BGM.toggle() }); };
 shell.btnBgm.onclick = () => { applySettings({ ...settings, bgm: BGM.toggle() }); };
+
+/* ---- ⋯ 菜单：展开 / 收起 ---- */
+shell.btnMenu.onclick = () => setMenu(!menuOpen());
+shell.tbMenu.addEventListener('click', () => setMenu(false));     // 点了任一项就收起
+document.addEventListener('click', e => {
+  const t = e.target as HTMLElement | null;
+  if (t && (t.closest('#tbMenu') || t.closest('#btnMenu'))) return;
+  setMenu(false);                                                  // 点别处收起
+});
+
+/* ---- 返回箭头：回到标题页 ---- */
+shell.btnBack.onclick = backToTitle;
 
 shell.btnMembers.onclick = () => {
   renderMembers(shell.drList, CHARS, session.state);
@@ -236,6 +325,7 @@ shell.btnBacklog.onclick = () => {
 };
 shell.btnSaves.onclick = openSavesPanel;
 shell.btnSettings.onclick = openSettingsPanel;
+shell.btnRoute.onclick = openRoutePanel;
 shell.btnPanelClose.onclick = closePanel;
 
 shell.btnFast.onclick = () => {
@@ -276,8 +366,14 @@ document.addEventListener('keydown', e => {
     shell.drawer.classList.remove('open');
     closePanel();
     overlay.close();
+    setMenu(false);
   }
 });
+
+/* 标题页底部的角色剪影合影（纯装饰，点不到）。 */
+shell.tCast.innerHTML = HERO_KEYS
+  .map(k => `<span>${sil(k, 340, CHARS)}</span>`)
+  .join('');
 
 syncBgmButton();
 renderMembers(shell.drList, CHARS, session.state);

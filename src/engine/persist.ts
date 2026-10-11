@@ -1,6 +1,9 @@
-import type { CharKey, FlagKey, GameState, LogEntry, Session, Speaker } from './types';
+import type {
+  CharKey, FlagKey, GameState, LogEntry, Session, SessionProgress, Speaker,
+} from './types';
 import { CHARS } from '../content/characters';
-import { SCHEMA_VERSION } from './effects';
+import { SCHEMA_VERSION, createInitialProgress } from './effects';
+import { toCheckpoint } from './route-map';
 
 /**
  * 存档的序列化与**防御性**反序列化。
@@ -10,7 +13,9 @@ import { SCHEMA_VERSION } from './effects';
  * 游戏在任何情况下都不应因为一个坏存档而白屏。
  */
 
-export const SAVE_VERSION = 1;
+/** 2 起新增 progress（路线图进度）。1 的存档经 migrateSave 补齐后仍可读。 */
+export const SAVE_VERSION = 2;
+const V1 = 1;
 
 const CHAR_KEYS = Object.keys(CHARS) as CharKey[];
 const FLAG_KEYS: readonly string[] = ['sheiTrap', 'mokuJoin', 'actGood', 'actSkip'];
@@ -19,7 +24,9 @@ const FLAG_KEYS: readonly string[] = ['sheiTrap', 'mokuJoin', 'actGood', 'actSki
 const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
 export function serializeSession(s: Session): string {
-  return JSON.stringify({ v: SAVE_VERSION, ip: s.ip, state: s.state, history: s.history });
+  return JSON.stringify({
+    v: SAVE_VERSION, ip: s.ip, state: s.state, history: s.history, progress: s.progress,
+  });
 }
 
 function isObj(v: unknown): v is Record<string, unknown> {
@@ -97,6 +104,39 @@ function parseState(raw: unknown): GameState | null {
   };
 }
 
+/** 路线图进度。三个字段都必须是「键为 label 的纯对象」，一处畸形即整份存档拒绝。 */
+function parseProgress(raw: unknown): SessionProgress | null {
+  if (!isObj(raw)) return null;
+
+  // visited：值必须是 true
+  if (!isObj(raw.visited)) return null;
+  const visited: Record<string, true> = {};
+  for (const [k, v] of Object.entries(raw.visited)) {
+    if (FORBIDDEN_KEYS.has(k) || v !== true) return null;
+    visited[k] = true;
+  }
+
+  // checkpoints：复用 parseState 做快照校验，再剥掉 schemaVersion
+  if (!isObj(raw.checkpoints)) return null;
+  const checkpoints: SessionProgress['checkpoints'] = {};
+  for (const [k, v] of Object.entries(raw.checkpoints)) {
+    if (FORBIDDEN_KEYS.has(k)) return null;
+    const st = parseState(v);
+    if (!st) return null;
+    checkpoints[k] = toCheckpoint(st);
+  }
+
+  // historyLens：非负整数
+  if (!isObj(raw.historyLens)) return null;
+  const historyLens: Record<string, number> = {};
+  for (const [k, v] of Object.entries(raw.historyLens)) {
+    if (FORBIDDEN_KEYS.has(k) || !isNonNegInt(v)) return null;
+    historyLens[k] = v;
+  }
+
+  return { visited, checkpoints, historyLens };
+}
+
 /**
  * 把不可信输入收窄成 Session。
  * @param scriptLength 剧本节点总数——`ip` 必须落在 [0, scriptLength] 内
@@ -113,23 +153,27 @@ export function deserializeSession(raw: unknown, scriptLength: number): Session 
   const history = parseHistory(raw.history);
   if (!history) return null;
 
-  return { state, ip: raw.ip, history };
+  const progress = parseProgress(raw.progress);
+  if (!progress) return null;
+
+  return { state, ip: raw.ip, history, progress };
 }
 
 /**
- * 版本迁移入口。目前只有 v1，因此这里主要是把关：
- * 来自未来的版本号一律拒绝（宁可读不出，也不要按旧规则误读新数据）。
+ * 版本迁移入口。逐级把老存档升级到当前版本再交给 deserializeSession。
+ *
+ * - 无 `v` 的裸会话对象：按 v1 处理（补空 progress）
+ * - v1：补空 progress 后升到 v2
+ * - 其它 / 来自未来的版本：一律拒绝（宁可读不出，也不要按旧规则误读新数据）
  */
 export function migrateSave(raw: unknown, scriptLength: number): Session | null {
   if (!isObj(raw)) return null;
 
-  // 无版本号的裸会话对象：视为 v1
-  if (!('v' in raw)) {
-    return deserializeSession({ ...raw, v: SAVE_VERSION }, scriptLength);
+  if (!('v' in raw) || raw.v === V1) {
+    return deserializeSession(
+      { ...raw, v: SAVE_VERSION, progress: createInitialProgress() }, scriptLength);
   }
 
   if (raw.v !== SAVE_VERSION) return null;
-
-  // 将来新增版本时，在此按 raw.v 逐级升级后再交给 deserializeSession
   return deserializeSession(raw, scriptLength);
 }

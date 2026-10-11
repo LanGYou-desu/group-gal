@@ -1,80 +1,116 @@
-/* 标题页。改自原版的 25-40 行。 */
+/* 标题页 —— galgame 的排版语汇，与游戏界面的 QQ 灰刻意分开。
+ *
+ * 主视觉不用外部图片：整屏是一道黄昏渐变，右上角那枚 😂 被当作光源放大到出血，
+ * 底部一排角色剪影拼成「全群」的合影，随遮罩向上淡出。
+ * 排版靠左，菜单竖排——经典 VN 标题画面的排法，且比居中式更有方向感。 */
 
 #title{
-  align-items:center;justify-content:center;text-align:center;
-  padding:calc(var(--sp-5) + var(--safe-t)) var(--sp-5) calc(var(--sp-5) + var(--safe-b));
+  align-items:flex-start;justify-content:center;text-align:left;
+  padding:calc(var(--sp-6) + var(--safe-t)) clamp(22px,7vw,110px) calc(118px + var(--safe-b));
+  padding-left:max(clamp(22px,7vw,110px), calc(var(--safe-l) + 22px));
+  padding-right:max(clamp(22px,7vw,110px), calc(var(--safe-r) + 22px));
   z-index:5;overflow:hidden;
+  background:
+    radial-gradient(120% 82% at 80% 4%, rgba(217,164,65,.16), transparent 54%),
+    radial-gradient(90% 70% at 8% 104%, rgba(109,141,189,.15), transparent 58%),
+    linear-gradient(180deg,#0e121b 0%, var(--vn-bg) 52%, #06070b 100%);
 }
-/* 作者原有的 😂 水印。
-   原来固定 42vh——在手机上（896px 高）就是 376px，几乎铺满整屏，
-   在深底上糊成一片污渍。改为同时受宽高约束，并让它更多地出血到画面外。 */
+
+/* 作者原有的 😂 水印——这次把它当光源，放大到出血、压暗到一个隐约的暖团 */
 #title::after{
   content:"😂";position:absolute;
-  right:-14vw;top:-5vh;
-  font-size:min(34vh, 52vw);
-  opacity:.045;
-  transform:rotate(-14deg);
+  right:-12vw;top:-18vh;
+  font-size:min(74vh, 58vw);
+  opacity:.022;
+  transform:rotate(-9deg);
+  filter:blur(14px);
   pointer-events:none;
 }
 
-.t-kicker{
-  font-size:var(--fs-xs);letter-spacing:.34em;color:var(--cyan);
-  border:1px solid rgba(92,225,230,.35);
-  border:1px solid color-mix(in srgb, var(--cyan) 35%, transparent);
-  border-radius:999px;padding:6px 15px;margin-bottom:var(--sp-5);display:inline-block;
-}
+/* ---------- 标题块（竖排顺序：标题 → 副题 → 标语 → 制作标记） ---------- */
+.t-logo{position:relative;z-index:2;display:flex;flex-direction:column;align-items:flex-start}
+#title h1{order:1}
+.t-sub{order:2}
+.t-tag{order:3}
+.t-kicker{order:4}
 
 #title h1{
-  font-size:var(--fs-display);
-  font-weight:900;
+  font-family:var(--font-serif);
+  font-size:var(--fs-vn-display);
+  font-weight:700;
   line-height:.98;
-  letter-spacing:-.03em;
-  background:linear-gradient(100deg,#fff 0%,var(--pink) 42%,var(--purple) 70%,var(--cyan) 100%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-}
-/* 别让渐变的 background-clip 把 emoji 也吃掉——它是这个作品最具辨识度的符号，
-   单独还原成 emoji 自己的颜色。 */
-#title h1 .t-emoji{
-  -webkit-text-fill-color:initial;
-  color:initial;
-  background:none;
+  letter-spacing:.02em;
+  color:var(--vn-ink);
+  text-shadow:0 0 56px rgba(217,164,65,.3), 0 3px 1px rgba(0,0,0,.5);
 }
 
 .t-sub{
   margin-top:var(--sp-3);
-  font-size:clamp(18px,4.2vw,28px);
-  font-weight:800;letter-spacing:.08em;
+  font-size:clamp(15px,3.2vw,23px);
+  font-weight:600;letter-spacing:.2em;
+  color:var(--vn-accent);
 }
-.t-tag{margin-top:var(--sp-3);color:var(--dim);font-size:14px}
-.t-btns{margin-top:var(--sp-6);display:flex;gap:var(--sp-3);flex-wrap:wrap;justify-content:center}
+.t-tag{margin-top:var(--sp-3);color:var(--vn-dim);font-size:14px;letter-spacing:.04em}
+.t-kicker{margin-top:var(--sp-5);font-size:11px;letter-spacing:.36em;color:var(--vn-dim);opacity:.62}
 
-.btn{
-  border:1px solid var(--line);background:rgba(255,255,255,.05);
-  border-radius:var(--r-md);padding:12px 22px;
-  font-size:var(--fs-md);font-weight:600;
-  min-height:44px;                       /* 触控目标 */
-  transition:border-color var(--dur-fast) var(--ease),
-             transform var(--dur-fast) var(--ease),
-             box-shadow var(--dur-fast) var(--ease);
-  backdrop-filter:blur(8px);
+/* ---------- 竖排菜单 ---------- */
+.t-btns{
+  position:relative;z-index:2;
+  margin-top:clamp(26px,6vh,60px);
+  display:flex;flex-direction:column;gap:2px;
+  width:min(340px,74vw);
 }
-.btn:hover{border-color:rgba(255,110,199,.55);border-color:color-mix(in srgb, var(--accent) 55%, transparent);transform:translateY(-2px)}
-.btn:active{transform:translateY(0) scale(.99)}
-.btn.primary{
-  background:linear-gradient(120deg,var(--purple),var(--pink));
-  border:none;color:#fff;
-  box-shadow:0 10px 30px rgba(255,110,199,.3);
-  box-shadow:0 10px 30px color-mix(in srgb, var(--accent) 30%, transparent);
+#title .btn{
+  position:relative;text-align:left;
+  font-family:var(--font-serif);
+  font-size:clamp(19px,3.3vw,24px);
+  font-weight:600;letter-spacing:.08em;
+  color:var(--vn-dim);
+  padding:13px 20px;min-height:52px;
+  border-radius:var(--r-vn);
+  transition:color var(--dur) var(--ease),padding-left var(--dur) var(--ease);
 }
-.t-foot{margin-top:var(--sp-6);color:var(--dim);font-size:var(--fs-xs);opacity:.8}
+/* hover 时亮起的高亮条 */
+#title .btn::before{
+  content:"";position:absolute;left:2px;top:50%;
+  transform:translateY(-50%);
+  width:3px;height:0;background:var(--vn-accent);
+  transition:height var(--dur) var(--ease);
+}
+#title .btn:hover,#title .btn:focus-visible{color:var(--vn-ink);padding-left:28px}
+#title .btn:hover::before,#title .btn:focus-visible::before{height:56%}
+#title .btn.primary{color:var(--vn-ink)}
+#title .btn.primary::before{height:56%}
 
-/* 一次编排好的入场：自上而下依次亮起，只播一遍。
-   不给每个元素都做「淡入上移」——那是通用默认，且会显得散。 */
-#title > *{animation:titleIn .5s var(--ease) both}
-#title .t-kicker{animation-delay:.02s}
-#title h1{animation-delay:.08s}
-#title .t-sub{animation-delay:.14s}
-#title .t-tag{animation-delay:.20s}
-#title .t-btns{animation-delay:.26s}
-#title .t-foot{animation-delay:.34s}
-@keyframes titleIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* ---------- 底部角色剪影合影（由 main.ts 注入） ---------- */
+/* 每个剪影按容器宽度的固定比例排开，整排居中、两侧出血——
+   读作「一群人的合影向画框外延伸」，而不是几个被裁掉的大色块。 */
+.t-cast{
+  position:absolute;left:0;right:0;bottom:0;
+  display:flex;justify-content:center;align-items:flex-end;gap:0;
+  overflow:hidden;pointer-events:none;z-index:1;
+  opacity:.5;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 42%);
+  mask-image:linear-gradient(180deg,transparent 0%,#000 42%);
+}
+.t-cast > span{flex:0 0 auto;width:min(15vw,120px);display:block}
+.t-cast svg{display:block;width:100%;height:auto}
+
+.t-foot{
+  position:absolute;right:clamp(16px,6vw,88px);bottom:calc(124px + var(--safe-b));
+  z-index:3;color:var(--vn-dim);font-size:11px;letter-spacing:.2em;opacity:.72;
+}
+
+/* 一次编排好的入场：自上而下依次亮起，只播一遍。 */
+#title .t-logo{animation:titleIn .55s var(--ease) both}
+#title .t-btns{animation:titleIn .55s var(--ease) .12s both}
+#title .t-foot{animation:titleIn .55s var(--ease) .3s both}
+@keyframes titleIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ---------- 窄屏 ---------- */
+@media(max-width:560px){
+  #title{justify-content:flex-end;padding-bottom:calc(112px + var(--safe-b))}
+  .t-cast{opacity:.42}
+  .t-cast > span{width:min(17vw,110px)}
+  .t-foot{position:static;margin-top:var(--sp-4);right:auto}
+}
