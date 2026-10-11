@@ -29,7 +29,8 @@
 ├── README.md                      # 仓库根说明（指向本 Wiki）
 ├── group-chat-galgame.html        # 版本一：v0.2 可玩 Demo（907 行）
 ├── 啥子豆包版本.html               # 版本二：豆包版 v1.0（1741 行）
-├── group-chat-galgame-v1.html     # ★ v1.0 完整版（1911 行，两版合并 + 缺陷修复）
+├── group-chat-galgame-v1.html     # v1.0 合并版（1911 行，豆包剧情为底 + 机制合并）
+├── group-chat-galgame-v2.html     # ★ v2.0 完整版（1975 行，剧情全部重写）
 ├── members.zip                    # 52 份按 QQ 号归档的群聊记录（.md）
 ├── report.pdf                     # 两批群聊记录综合分析报告（23 页）
 ├── tools/
@@ -42,17 +43,18 @@
 
 | 我想… | 怎么做 |
 |-------|--------|
-| 直接玩 | 双击 `group-chat-galgame-v1.html`（或任意版本 HTML），浏览器打开即玩，无需服务器 |
-| 在本地服务器上玩 | `python3 -m http.server 8931` → 访问 `http://localhost:8931/group-chat-galgame-v1.html` |
+| 直接玩 | 双击 `group-chat-galgame-v2.html`（或任意版本 HTML），浏览器打开即玩，无需服务器 |
+| 在本地服务器上玩 | `python3 -m http.server 8931` → 访问 `http://localhost:8931/group-chat-galgame-v2.html` |
 | 看游戏怎么实现 | 先读 [02-整体架构](./02-整体架构.md)，再读 [03-核心引擎与关键函数](./03-核心引擎与关键函数.md) |
 | 写新剧情 | 读 [04-数据模型与剧本 DSL](./04-数据模型与剧本DSL.md) 的「节点速查」一节 |
 | 校验剧本修改没写坏 | `node tools/validate.js`（脚本与说明见 [05-依赖关系与运行方式](./05-依赖关系与运行方式.md#6-剧本校验脚本)） |
-| 跑一遍端到端冒烟 | `npm i -D jsdom && node tools/smoke-test.js`（覆盖分岔/通关/复读/抽屉/回收室） |
+| 跑一遍端到端冒烟 | `npm i -D jsdom && node tools/smoke-test.js`（覆盖分岔/通关/复读/抽屉/回收室/hub 支线） |
 
 ## 5. 版本速查
 
-| 版本 | 文件 | 引擎特征 | 结局 | 状态 |
-|------|------|---------|------|------|
-| v0.2 Demo | `group-chat-galgame.html` | 数组剧本 + async 线性播放；复读/水群值/成员抽屉 | 7 线序章 + 9 BE | 保留作对照 |
-| 豆包版 v1.0 | `啥子豆包版本.html` | 节点图 + 打字机 + 手动/自动 + 存档 + 回收室 | 15 线 + 18 BE | 保留作对照（含 3 处缺陷） |
-| **v1.0 完整版** | `group-chat-galgame-v1.html` | 豆包版引擎 + v0.2 机制合并 + 全缺陷修复 | **15 线 + 23 BE（全可达）** | **当前主版本** |
+| 版本 | 文件 | 引擎特征 | 剧本来源 | 结局 |
+|------|------|---------|---------|------|
+| v0.2 Demo | `group-chat-galgame.html` | 数组剧本 + async 线性播放；复读/水群值/成员抽屉 | 原作 | 7 线序章 + 9 BE |
+| 豆包版 v1.0 | `啥子豆包版本.html` | 节点图 + 打字机 + 手动/自动 + 存档 + 回收室 | 豆包创作（含 3 处缺陷） | 15 线 + 18 BE |
+| v1.0 合并版 | `group-chat-galgame-v1.html` | 豆包版引擎 + v0.2 机制合并 + 全缺陷修复 | 豆包剧情为底 | 15 线 + 23 BE |
+| **v2.0 完整版** | `group-chat-galgame-v2.html` | v1 引擎 + hub 一次性支线 + 配件立绘 | **全部重写**（v0.2 世界观 + 真实语料；零引用豆包台词） | **15 线 + 23 BE（全可达）** |

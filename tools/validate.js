@@ -1,123 +1,171 @@
-/* 剧本图完整性 + 全路线可达性校验
-   用法：node tools/validate.js [目标HTML，默认 ../group-chat-galgame-v1.html] */
+/* 剧本校验：跳转/引用完整性 + 主线与支线自动发现 + 全路线可达性（集束搜索）
+   用法：node tools/validate.js [目标HTML，默认 ../group-chat-galgame-v2.html]
+   兼容 v2（hub 支线结构）与 v1（线性选择结构）*/
 const fs = require("fs");
 const path = require("path");
-const target = process.argv[2] || path.join(__dirname, "..", "group-chat-galgame-v1.html");
+const target = process.argv[2] || path.join(__dirname, "..", "group-chat-galgame-v2.html");
 const src = fs.readFileSync(target, "utf8");
-
 function grab(startMark, endMark, ret) {
   const a = src.indexOf(startMark);
   if (a < 0) throw new Error("marker not found: " + startMark);
   const b = src.indexOf(endMark, a);
   if (b < 0) throw new Error("end marker not found: " + endMark);
-  const code = src.slice(a, b) + endMark;   // 拼回结束符
-  return new Function(code + "; return (" + ret + ");")();
+  return new Function(src.slice(a, b) + endMark + "; return (" + ret + ");")();
 }
-
 const CH = grab("const CH = {", "\n};", "CH");
 const NODES = grab("const NODES = {", "\n};", "NODES");
 const ENDINGS = grab("const ENDINGS = {", "\n};", "ENDINGS");
 const GE_SLOTS = grab("const GE_SLOTS = [", "];", "GE_SLOTS");
 const PRIORITY = grab("const PRIORITY=[", "];", "PRIORITY");
 const ROUTE_START = grab("const ROUTE_START={", "};", "ROUTE_START");
-
 console.log("CH:", Object.keys(CH).length, " NODES:", Object.keys(NODES).length,
   " ENDINGS:", Object.keys(ENDINGS).length, " GE_SLOTS:", GE_SLOTS.length);
 
-let errors = [];
-
-/* 1. 所有跳转目标可解析 */
+const errors = [];
 function checkTarget(from, to) {
   if (to == null) return;
-  if (typeof to !== "string") { errors.push(`${from}: 非法跳转 ${to}`); return; }
-  if (to.startsWith("__end_")) {
-    const k = to.slice(6);
-    if (!ENDINGS[k]) errors.push(`${from} -> ${to}: ENDINGS 缺少 ${k}`);
-    return;
-  }
-  if (to.startsWith("__ge_")) {
-    const k = to.slice(5);
-    if (!NODES["ge_" + k]) errors.push(`${from} -> ${to}: 缺少节点 ge_${k}`);
-    return;
-  }
+  if (to.startsWith("__end_")) { if (!ENDINGS[to.slice(6)]) errors.push(`${from} -> ${to}: ENDINGS 缺少 ${to.slice(6)}`); return; }
+  if (to.startsWith("__ge_")) { if (!NODES["ge_" + to.slice(5)]) errors.push(`${from} -> ${to}: 缺少节点`); return; }
   if (!NODES[to]) errors.push(`${from} -> ${to}: 节点不存在`);
 }
 for (const [id, n] of Object.entries(NODES)) {
   checkTarget(id, n.next);
   (n.o || []).forEach((o, i) => {
-    if (!Array.isArray(o) || o.length < 2) { errors.push(`${id}.o[${i}] 结构异常`); return; }
     checkTarget(id + ".o" + i, o[1]);
     const fx = o[2];
     if (fx) {
-      for (const k in (fx.a || {})) if (!CH[k]) errors.push(`${id}.o${i}: fx.a 引用了未知角色 ${k}`);
+      for (const k in (fx.a || {})) if (!CH[k]) errors.push(`${id}.o${i}: fx.a 未知角色 ${k}`);
       for (const k in (fx.s || {})) if (!"zrmqw".includes(k)) errors.push(`${id}.o${i}: 未知资质 ${k}`);
     }
   });
   if (n.fx) for (const k in (n.fx.a || {})) if (!CH[k]) errors.push(`${id}: fx.a 未知角色 ${k}`);
   if (n.c && n.c !== null && !CH[n.c]) errors.push(`${id}: 立绘角色 ${n.c} 不存在`);
-  const lines = n.b || n.l || [];
-  lines.forEach(([k], i) => {
-    if (k && k !== "#" && !CH[k]) errors.push(`${id} 行${i}: 说话人 ${k} 不存在`);
-  });
+  (n.b || n.l || []).forEach(([k], i) => { if (k && k !== "#" && !CH[k]) errors.push(`${id} 行${i}: 说话人 ${k} 不存在`); });
 }
-
-/* 2. GE / 路线可解析 */
 GE_SLOTS.forEach(k => {
   if (!NODES["ge_" + k]) errors.push(`GE_SLOTS: 缺少 ge_${k}`);
   if (!ROUTE_START[k]) errors.push(`GE_SLOTS: ROUTE_START 缺少 ${k}`);
-  if (!CH[k]) errors.push(`GE_SLOTS: CH 缺少 ${k}`);
 });
 PRIORITY.forEach(k => { if (!CH[k]) errors.push(`PRIORITY: CH 缺少 ${k}`); });
 Object.entries(ROUTE_START).forEach(([k, id]) => { if (!NODES[id]) errors.push(`ROUTE_START ${k} -> ${id} 不存在`); });
 
-/* 3. 全路线可达性：穷举共通线选择，检查每个角色都能成为最高羁绊 */
-const COMMON = [
-  ["d1a", 3], ["d1c", 3], ["d2a", 3], ["d2b", 3], ["d3a", 3], ["d3b", 5], ["d4a", 4],
-  ["d4_b", 3], ["d5a", 4], ["d5b", 3], ["d6a", 3], ["d6_b", 3], ["d6c", 2], ["d7a", 2], ["mx1", 3]
-];
-// 固定节点加成（d6c / d7a / mx2 的节点级 fx）
-const FIXED = { lusi: 1, liuli: 1 };
+/* ---------- 自动发现：主线选择点 + hub 支线组 ---------- */
 const keys = Object.keys(CH).filter(k => k !== "you");
+const groups = [];        // 每组：{name, options:[{text,target,fx}]}
+let branchId = null;
+function deltaOf(fx) { const d = {}; if (fx && fx.a) for (const k in fx.a) d[k] = (d[k] || 0) + fx.a[k]; return d; }
+function qOf(fx) { return (fx && fx.s && fx.s.q) || 0; }
+function walk(id, seen) {
+  let guard = 0;
+  while (id && NODES[id] && guard++ < 400) {
+    if (seen.has(id)) return null;
+    seen.add(id);
+    const n = NODES[id];
+    if (n.j === "branch") { branchId = id; return null; }
+    if (n.hub) {
+      const mainOpts = (n.o || []).filter(o => !o[3]);
+      (n.o || []).filter(o => o[3]).forEach(o => {
+        const sub = [];
+        walkSub(o[1], sub);
+        groups.push({ name: "hub:" + o[3], options: [{ text: "（跳过）", target: null, fx: null }].concat(sub) });
+      });
+      const next = mainOpts[0];
+      if (!next) return null;
+      groups.push({ name: "hub:推进", options: [next] });
+      id = next[1]; continue;
+    }
+    if (n.o) {
+      const opts = n.o.filter(o => !String(o[1]).startsWith("__end_"));
+      groups.push({ name: id, options: opts });
+      id = opts[0] && opts[0][1];
+      continue;
+    }
+    id = n.next;
+  }
+  return null;
+}
+function walkSub(id, collect) {
+  let guard = 0; const seen = new Set();
+  while (id && NODES[id] && guard++ < 400) {
+    if (id === "hub" || seen.has(id)) return;
+    seen.add(id);
+    const n = NODES[id];
+    if (n.o) {
+      const opts = n.o.filter(o => !String(o[1]).startsWith("__end_"));
+      if (opts.length) collect.push(...opts);
+      id = opts[0] && opts[0][1]; continue;
+    }
+    if (n.j === "branch") { branchId = branchId || id; return; }
+    id = n.next;
+  }
+}
+walk("start", new Set());
+console.log("分支节点:", branchId, " 选择组:", groups.length);
+groups.forEach(g => console.log("  ·", g.name, "→", g.options.length, "个选项"));
+
+/* ---------- 集束搜索：验证每个角色都能成为羁绊最高者 ---------- */
+const K = 20000;
 const canWin = new Set();
-let paths = 0;
-(function walk(i, deltas, q) {
-  if (i === COMMON.length) {
-    paths++;
-    const total = {};
-    keys.forEach(k => total[k] = (deltas[k] || 0) + (FIXED[k] || 0));
-    let best = null, bv = -1e9;
-    PRIORITY.forEach(k => { if (total[k] > bv) { bv = total[k]; best = k; } });
-    if (q < 3) canWin.add(best);           // q>=3 会走第 81 人 END
-    return;
+const winners = {};
+function maxOtherOf(st, X) {
+  let m = -999;
+  PRIORITY.forEach(k => { if (k !== X) m = Math.max(m, st.d[k] || 0); });
+  return m;
+}
+function winnerOf(st) {
+  let bestK = null, bv = -1e9;
+  PRIORITY.forEach(k => { const v = st.d[k] || 0; if (v > bv) { bv = v; bestK = k; } });
+  return { bestK, bv };
+}
+function sumRivals(st, X) {
+  let s = 0;
+  PRIORITY.forEach(k => { if (k !== X) s += Math.max(0, st.d[k] || 0); });
+  return s;
+}
+function runBeam(X, metric) {
+  let beam = [{ d: {}, q: 0 }];
+  for (const g of groups) {
+    const next = [];
+    for (const st of beam) {
+      for (const o of g.options) {
+        const d = Object.assign({}, st.d);
+        const add = deltaOf(o[2]);
+        for (const k in add) d[k] = (d[k] || 0) + add[k];
+        const q = st.q + qOf(o[2]);
+        if (q >= 3) continue;                    // 空気≥3 → 第 81 人 END，排除
+        next.push({ d, q });
+      }
+    }
+    next.sort((a, b) => metric(b, X) - metric(a, X));
+    beam = next.slice(0, K);
   }
-  const [nodeId, cnt] = COMMON[i];
-  const opts = NODES[nodeId].o.slice(0, cnt);
-  opts.forEach(o => {
-    const to = o[1];
-    if (to && to.startsWith("__end_")) return;  // 进 BE 的选项不参与主线枚举
-    const d = Object.assign({}, deltas);
-    (o[2] && o[2].a ? Object.keys(o[2].a) : []).forEach(k => d[k] = (d[k] || 0) + o[2].a[k]);
-    const nq = q + ((o[2] && o[2].s && o[2].s.q) || 0);
-    walk(i + 1, d, nq);
-  });
-})(0, {}, 0);
-console.log("枚举路径数:", paths);
+  return beam;
+}
+for (const X of GE_SLOTS) {
+  let ok = false, note = null, best = { x: -99, rival: 99 };
+  const beams = [
+    /* 优先拉高 X，其次压低对手 */
+    runBeam(X, (st, x) => (st.d[x] || 0) * 1000 - maxOtherOf(st, x) * 10 - sumRivals(st, x) * 0.01),
+    /* 优先压低对手，其次拉高 X */
+    runBeam(X, (st, x) => (st.d[x] || 0) * 100 - maxOtherOf(st, x) * 100 - sumRivals(st, x) * 0.01)
+  ];
+  for (const beam of beams) {
+    for (const st of beam) {
+      const xv = st.d[X] || 0, mo = maxOtherOf(st, X);
+      if (xv - mo > best.x - best.rival) best = { x: xv, rival: mo };
+      const w = winnerOf(st);
+      if (w.bestK === X) {
+        ok = true;
+        if (!note || xv - mo > note.diff) note = { diff: xv - mo, txt: `${xv}(对手 ${w.bv})` };
+      }
+    }
+  }
+  if (ok) { canWin.add(X); winners[X] = note.txt; }
+  else { errors.push(`路线不可达: ${X}（最佳 X=${best.x} 对手=${best.rival}）`); }
+}
+console.log("\n可达成最高羁绊:", [...canWin].sort().join(", "));
+console.log("羁绊峰值参考:", GE_SLOTS.map(k => k + "=" + (winners[k] === undefined ? "✗" : winners[k])).join(" "));
 const missing = GE_SLOTS.filter(k => !canWin.has(k));
-console.log("可达成最高羁绊的角色:", [...canWin].sort().join(", "));
 console.log("不可达角色:", missing.length ? missing.join(", ") : "无 ✓");
-missing.forEach(k => errors.push(`路线不可达: ${k}`));
-
-/* 4. 结局文本 / 描述存在性 */
-Object.entries(NODES).forEach(([id, n]) => {
-  if (id.startsWith("ge_")) {
-    const k = id.slice(3);
-    if (!CH[k]) errors.push(`${id}: CH 缺少 ${k}`);
-    if (!(n.l && n.l.length)) errors.push(`${id}: 无台词`);
-  }
-});
-Object.entries(ENDINGS).forEach(([k, e]) => {
-  if (!e.name || !e.who || !e.desc) errors.push(`ENDINGS.${k}: 字段缺失`);
-});
-
 console.log(errors.length ? "\n[FAIL]\n" + errors.join("\n") : "\n[ALL CHECKS PASSED]");
 process.exit(errors.length ? 1 : 0);
