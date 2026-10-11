@@ -1,0 +1,17 @@
+/* 设计令牌与全局重置。原样搬运自 group-chat-galgame.html:8-23。 */
+:root{
+  --bg:#0b0910; --panel:#15121f; --line:rgba(255,255,255,.10);
+  --pink:#ff6ec7; --cyan:#5ce1e6; --purple:#a06bff; --yellow:#ffd76e;
+  --txt:#eceaf5; --dim:#9d97b2; --bub:#241f33;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:radial-gradient(900px 600px at 85% -10%,rgba(160,107,255,.20),transparent 60%),
+    radial-gradient(700px 500px at 0% 10%,rgba(255,110,199,.16),transparent 55%),var(--bg);
+  color:var(--txt); font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
+  overflow:hidden; -webkit-font-smoothing:antialiased;
+}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column}
+.hidden{display:none !important}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
