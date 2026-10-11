@@ -1,0 +1,61 @@
+name: 部署到 GitHub Pages
+
+# 推送到 main 时自动构建并部署在线可玩版。
+# 产物是单文件 HTML（vite-plugin-singlefile），因此 Pages 上只有 index.html 一个文件。
+#
+# 首次启用：仓库 Settings → Pages → Source 选择 "GitHub Actions"。
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只跑一个部署；新的推送取消进行中的那次
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建（含剧本校验，剧本写坏会导致构建失败）
+        run: npm run build
+
+      - name: 确认产物是自包含单文件
+        run: |
+          test -f dist/index.html
+          if grep -qE '<script[^>]+src=|<link[^>]+href="https?://' dist/index.html; then
+            echo "::error::产物含外部引用，Pages 上会加载失败"; exit 1
+          fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
