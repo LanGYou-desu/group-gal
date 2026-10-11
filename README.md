@@ -27,7 +27,8 @@ python3 -m http.server 8931   # → http://localhost:8931/group-chat-galgame-v2.
 | `group-chat-galgame-v1.html` | v1.0 合并版（以豆包版剧情为底 + 机制合并 + 缺陷修复） |
 | `group-chat-galgame.html` | 版本一：v0.2 可玩 Demo（世界观与角色来源） |
 | `啥子豆包版本.html` | 版本二：豆包版 v1.0（引擎能力来源） |
-| `members.zip` / `report.pdf` | 群聊记录 / 综合分析报告 |
+| `members.zip` / `report.pdf` | 群聊记录（原始导出）/ 综合分析报告 |
+| `dialogues/` | 群友对话按人拆分（52 个文件 + INDEX.md，见 `tools/split-dialogues.py`） |
 | `docs/` | Code Wiki（架构、引擎、剧本 DSL、运行方式、素材管线、版本对比） |
 | `tools/validate.js` | 剧本完整性 + 全路线可达性校验（`node tools/validate.js`，零依赖） |
 | `tools/smoke-test.js` | jsdom 端到端冒烟测试（`npm i -D jsdom && node tools/smoke-test.js`） |

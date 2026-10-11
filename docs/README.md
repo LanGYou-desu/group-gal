@@ -31,11 +31,13 @@
 ├── 啥子豆包版本.html               # 版本二：豆包版 v1.0（1741 行）
 ├── group-chat-galgame-v1.html     # v1.0 合并版（1911 行，豆包剧情为底 + 机制合并）
 ├── group-chat-galgame-v2.html     # ★ v2.0 完整版（1975 行，剧情全部重写）
-├── members.zip                    # 52 份按 QQ 号归档的群聊记录（.md）
+├── members.zip                    # 52 份按 QQ 号归档的群聊记录（原始导出）
+├── dialogues/                     # 按人拆分后的对话集（52 个 <昵称>_<QQ>.md + INDEX.md）
 ├── report.pdf                     # 两批群聊记录综合分析报告（23 页）
 ├── tools/
 │   ├── validate.js                # 剧本完整性 + 全路线可达性校验（node，零依赖）
-│   └── smoke-test.js              # jsdom 端到端冒烟测试（可选，需 jsdom）
+│   ├── smoke-test.js              # jsdom 端到端冒烟测试（可选，需 jsdom）
+│   └── split-dialogues.py         # members.zip → dialogues/ 按人拆分脚本
 └── docs/                          # 本 Code Wiki
 ```
 
