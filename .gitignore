@@ -1,0 +1,28 @@
+# ---------- 依赖与构建产物 ----------
+node_modules/
+dist/
+dist-pages/
+.vite/
+*.local
+
+# ---------- 测试与工具缓存 ----------
+coverage/
+.vitest/
+*.tsbuildinfo
+
+# ---------- 人设档案 ----------
+# docs/persona/ 由 QQ 群聊记录分析报告提炼而来，
+# 含真实 QQ 号、群名片与原始聊天内容，禁止入库、禁止推送。
+docs/persona/
+
+# ---------- 编辑器 / 系统 ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+*.swp
+
+# ---------- 日志 ----------
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
