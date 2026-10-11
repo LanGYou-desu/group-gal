@@ -125,15 +125,16 @@ export interface Session {
   history: LogEntry[];
 }
 
-/** 等待时长策略。快进开关在这里生效。 */
+/** 等待时长策略。快进开关在这里生效。
+ *  字段可变——main.ts 直接翻转 `fast`，Renderer 每次读取时即时生效。 */
 export interface DelayPolicy {
-  readonly me: number;
-  readonly msg: number;
-  readonly sys: number;
-  readonly note: number;
-  readonly card: number;
+  me: number;
+  msg: number;
+  sys: number;
+  note: number;
+  card: number;
   /** 快进时为 true，所有等待被钳制到上限 */
-  readonly fast: boolean;
+  fast: boolean;
 }
 
 export type EndingResolution =

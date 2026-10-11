@@ -38,6 +38,14 @@ export function createOverlay(
       <p>${esc(b.text)}</p>${restartBtns()}`;
   }
 
+  /**
+   * 数值字段转文本。这两项来自 Session——阶段 2 的存档会从 localStorage 反序列化，
+   * 那里是可以被手改的，所以即便类型上写着 number 也做一次强制与转义。
+   */
+  function num(v: number): string {
+    return esc(String(Number(v) || 0));
+  }
+
   /** 源 :814-831。结局已由引擎判定，这里只渲染。 */
   function routeHtml(key: CharKey, session: Session): string {
     const e = ENDING[key] ?? ENDING.nanao!;
@@ -48,7 +56,7 @@ export function createOverlay(
     return `<div class="tag">END · 路线序章</div><h2>${esc(e.title)}</h2>
       <p>${esc(e.text)}</p>
       <div class="stat-sum">当前沦陷度<br>${sum}<br><br>
-      <span style="color:var(--dim)">水群值：<b>${session.state.water}</b> ｜ 群成员：<b>${session.state.members}</b></span></div>
+      <span style="color:var(--dim)">水群值：<b>${num(session.state.water)}</b> ｜ 群成员：<b>${num(session.state.members)}</b></span></div>
       ${restartBtns()}
       <p style="margin-top:16px;font-size:12px;color:var(--dim)">※ 本条为路线序章，个人线好结局按企划要求暂未撰写。游戏内可触发 9 个 Bad End。</p>`;
   }

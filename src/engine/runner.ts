@@ -28,6 +28,8 @@ class UnknownLabelError extends Error {
 
 function delayFor(r: Renderer, ms: number): Promise<void> {
   const capped = r.delays.fast ? Math.min(ms, FAST_CAP_MS) : ms;
+  // 免去一次宏任务调度：生产环境延时恒 > 0，这条分支只服务于测试与快进
+  if (capped <= 0) return Promise.resolve();
   return new Promise(resolve => { setTimeout(resolve, capped); });
 }
 
