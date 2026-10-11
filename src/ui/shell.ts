@@ -40,7 +40,7 @@ export interface Shell {
 const SHELL_HTML = `
   <div id="title" class="screen">
     <div class="t-kicker">GALGAME DEMO · 恋爱模拟 ADV</div>
-    <h1>😂群聊</h1>
+    <h1><span class="t-emoji">😂</span>群聊</h1>
     <div class="t-sub">全 群 攻 陷 计 划</div>
     <p class="t-tag">—— 第 81 位群友的攻略日志 ——</p>
     <div class="t-btns">
@@ -67,7 +67,7 @@ const SHELL_HTML = `
         <button id="btnBgm" class="mini">🔊</button>
       </div>
     </div>
-    <div id="chat" class="chat"></div>
+    <div id="chat" class="chat" role="log" aria-live="polite" aria-label="群聊消息"></div>
     <div id="composer" class="composer"><div class="c-idle">正在加载群聊……</div></div>
   </div>
 

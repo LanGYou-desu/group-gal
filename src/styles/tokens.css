@@ -1,17 +1,97 @@
-/* 设计令牌与全局重置。原样搬运自 group-chat-galgame.html:8-23。 */
+/* 设计令牌。
+   改自原版的 8-23 行：保留粉 / 紫 / 青的身份，但把「大声」的颜色收成一个（粉），
+   并新增一组**音游判定色**——那组颜色只服务于好感阶段，不做装饰。
+
+   字体不引 webfont：中文包体太大，且这个项目的卖点之一就是离线可玩。
+   数字与拉丁数据换用等宽窄体，让「成员 81 / 水群值 0」一眼区别于台词。 */
 :root{
-  --bg:#0b0910; --panel:#15121f; --line:rgba(255,255,255,.10);
-  --pink:#ff6ec7; --cyan:#5ce1e6; --purple:#a06bff; --yellow:#ffd76e;
-  --txt:#eceaf5; --dim:#9d97b2; --bub:#241f33;
+  /* ---- 底与面 ---- */
+  --bg:#08070d;
+  --panel:#141220;
+  --surface:#1c1930;
+  --bub:#221d33;
+  --line:rgba(255,255,255,.09);
+  --line-strong:rgba(255,255,255,.20);
+
+  /* ---- 文字 ---- */
+  --txt:#eae8f4;
+  --dim:#928da8;
+
+  /* ---- 唯一的「大声」颜色 ---- */
+  --accent:#ff6ec7;
+  --accent-soft:rgba(255,110,199,.14);
+
+  /* ---- 音游判定色：只用于好感阶段 ---- */
+  --judge-lost:#6e7288;    /* 无视 = LOST   */
+  --judge-far:#f0a03c;     /* 眼熟 = FAR    */
+  --judge-pure:#5ce1e6;    /* 嘴替 = PURE   */
+  --judge-max:#ffffff;     /* 宝宝 = MAX    */
+  --judge-theory:#ffd76e;  /* 沦陷 = 理论值 */
+
+  /* 沿用原变量名作为别名，避免大面积改名 */
+  --pink:var(--accent);
+  --cyan:var(--judge-pure);
+  --purple:#a06bff;
+  --yellow:var(--judge-theory);
+
+  /* ---- 字号阶梯 ---- */
+  --fs-xs:11px;
+  --fs-sm:12.5px;
+  --fs-md:14.5px;
+  --fs-lg:17px;
+  --fs-xl:clamp(20px,4.6vw,26px);
+  --fs-display:clamp(46px,11vw,92px);
+
+  /* ---- 间距 ---- */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:34px;
+
+  /* ---- 圆角 ---- */
+  --r-sm:10px; --r-md:14px; --r-lg:20px;
+
+  /* ---- 动效 ---- */
+  --dur-fast:.16s; --dur:.24s;
+  --ease:cubic-bezier(.22,.61,.36,1);
+
+  /* ---- 数据用窄等宽 ---- */
+  --font-num:ui-monospace,"SF Mono","Cascadia Mono",Consolas,"Liberation Mono",monospace;
+
+  /* ---- 安全区 ---- */
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-l:env(safe-area-inset-left,0px);
+  --safe-r:env(safe-area-inset-right,0px);
 }
+
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{
-  background:radial-gradient(900px 600px at 85% -10%,rgba(160,107,255,.20),transparent 60%),
-    radial-gradient(700px 500px at 0% 10%,rgba(255,110,199,.16),transparent 55%),var(--bg);
-  color:var(--txt); font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
-  overflow:hidden; -webkit-font-smoothing:antialiased;
+  background:
+    radial-gradient(900px 600px at 85% -10%,rgba(160,107,255,.18),transparent 60%),
+    radial-gradient(700px 500px at 0% 10%,rgba(255,110,199,.14),transparent 55%),
+    var(--bg);
+  color:var(--txt);
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Noto Sans SC",system-ui,sans-serif;
+  font-size:var(--fs-md);
+  line-height:1.6;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
 }
 .screen{position:fixed;inset:0;display:flex;flex-direction:column}
 .hidden{display:none !important}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+/* 数字一眼区别于台词 */
+.num{font-family:var(--font-num);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+
+/* 键盘可达：只在键盘操作时出现焦点环 */
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* 尊重系统的「减少动效」——这在一个消息逐条揭示的游戏里尤其重要 */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
+  }
+}

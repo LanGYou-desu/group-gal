@@ -1,17 +1,80 @@
-/* 标题页。原样搬运自 group-chat-galgame.html:25-40。 */
-#title{align-items:center;justify-content:center;text-align:center;padding:24px;z-index:5;overflow:hidden}
-#title::after{content:"😂";position:absolute;right:-6vw;top:-6vh;font-size:42vh;opacity:.05;transform:rotate(-14deg)}
-.t-kicker{font-size:11px;letter-spacing:.34em;color:var(--cyan);border:1px solid rgba(92,225,230,.35);
-  border-radius:999px;padding:6px 15px;margin-bottom:24px;display:inline-block}
-#title h1{font-size:clamp(46px,11vw,92px);font-weight:900;line-height:1;
+/* 标题页。改自原版的 25-40 行。 */
+
+#title{
+  align-items:center;justify-content:center;text-align:center;
+  padding:calc(var(--sp-5) + var(--safe-t)) var(--sp-5) calc(var(--sp-5) + var(--safe-b));
+  z-index:5;overflow:hidden;
+}
+/* 作者原有的 😂 水印。
+   原来固定 42vh——在手机上（896px 高）就是 376px，几乎铺满整屏，
+   在深底上糊成一片污渍。改为同时受宽高约束，并让它更多地出血到画面外。 */
+#title::after{
+  content:"😂";position:absolute;
+  right:-14vw;top:-5vh;
+  font-size:min(34vh, 52vw);
+  opacity:.045;
+  transform:rotate(-14deg);
+  pointer-events:none;
+}
+
+.t-kicker{
+  font-size:var(--fs-xs);letter-spacing:.34em;color:var(--cyan);
+  border:1px solid rgba(92,225,230,.35);
+  border:1px solid color-mix(in srgb, var(--cyan) 35%, transparent);
+  border-radius:999px;padding:6px 15px;margin-bottom:var(--sp-5);display:inline-block;
+}
+
+#title h1{
+  font-size:var(--fs-display);
+  font-weight:900;
+  line-height:.98;
+  letter-spacing:-.03em;
   background:linear-gradient(100deg,#fff 0%,var(--pink) 42%,var(--purple) 70%,var(--cyan) 100%);
-  -webkit-background-clip:text;background-clip:text;color:transparent}
-.t-sub{margin-top:12px;font-size:clamp(18px,4.2vw,28px);font-weight:800;letter-spacing:.08em}
-.t-tag{margin-top:14px;color:var(--dim);font-size:14px}
-.t-btns{margin-top:38px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-.btn{border:1px solid var(--line);background:rgba(255,255,255,.05);border-radius:14px;
-  padding:12px 22px;font-size:14.5px;font-weight:600;transition:.18s;backdrop-filter:blur(8px)}
-.btn:hover{border-color:rgba(255,110,199,.55);transform:translateY(-2px)}
-.btn.primary{background:linear-gradient(120deg,var(--purple),var(--pink));border:none;color:#fff;
-  box-shadow:0 10px 30px rgba(255,110,199,.3)}
-.t-foot{margin-top:30px;color:var(--dim);font-size:11.5px;opacity:.8}
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+/* 别让渐变的 background-clip 把 emoji 也吃掉——它是这个作品最具辨识度的符号，
+   单独还原成 emoji 自己的颜色。 */
+#title h1 .t-emoji{
+  -webkit-text-fill-color:initial;
+  color:initial;
+  background:none;
+}
+
+.t-sub{
+  margin-top:var(--sp-3);
+  font-size:clamp(18px,4.2vw,28px);
+  font-weight:800;letter-spacing:.08em;
+}
+.t-tag{margin-top:var(--sp-3);color:var(--dim);font-size:14px}
+.t-btns{margin-top:var(--sp-6);display:flex;gap:var(--sp-3);flex-wrap:wrap;justify-content:center}
+
+.btn{
+  border:1px solid var(--line);background:rgba(255,255,255,.05);
+  border-radius:var(--r-md);padding:12px 22px;
+  font-size:var(--fs-md);font-weight:600;
+  min-height:44px;                       /* 触控目标 */
+  transition:border-color var(--dur-fast) var(--ease),
+             transform var(--dur-fast) var(--ease),
+             box-shadow var(--dur-fast) var(--ease);
+  backdrop-filter:blur(8px);
+}
+.btn:hover{border-color:rgba(255,110,199,.55);border-color:color-mix(in srgb, var(--accent) 55%, transparent);transform:translateY(-2px)}
+.btn:active{transform:translateY(0) scale(.99)}
+.btn.primary{
+  background:linear-gradient(120deg,var(--purple),var(--pink));
+  border:none;color:#fff;
+  box-shadow:0 10px 30px rgba(255,110,199,.3);
+  box-shadow:0 10px 30px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.t-foot{margin-top:var(--sp-6);color:var(--dim);font-size:var(--fs-xs);opacity:.8}
+
+/* 一次编排好的入场：自上而下依次亮起，只播一遍。
+   不给每个元素都做「淡入上移」——那是通用默认，且会显得散。 */
+#title > *{animation:titleIn .5s var(--ease) both}
+#title .t-kicker{animation-delay:.02s}
+#title h1{animation-delay:.08s}
+#title .t-sub{animation-delay:.14s}
+#title .t-tag{animation-delay:.20s}
+#title .t-btns{animation-delay:.26s}
+#title .t-foot{animation-delay:.34s}
+@keyframes titleIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
