@@ -4,7 +4,7 @@ import { HERO_KEYS, MAIN_KEYS } from '../content/characters';
 /**
  * 结局判定。纯函数。
  *
- * 与现状 group-chat-galgame.html:814-821 **行为完全一致**：
+ * 与重构前 **行为完全一致**：
  *   1. 放过鸽子(actSkip) 且 总好感 ≤6 → BE10「我很伤心」
  *   2. 总好感 ≤4 → BE23「第 81 人」
  *   3. 否则取 MAIN_KEYS 中好感最高者；并列取靠前者

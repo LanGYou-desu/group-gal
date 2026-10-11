@@ -1,7 +1,7 @@
 import type { CharKey, CharTable } from '../engine/types';
 
 /**
- * 14 个角色。搬运自 group-chat-galgame.html:195-221，**文案一字未改**。
+ * 14 个角色。搬运自原版单文件，**文案一字未改**。
  * 唯一变化：外层对象键提升为 CharTable 的键类型；gen/aka/moku 补上 hero:false
  * （源文件里它们没有 hero 字段，即非可攻略）。
  */

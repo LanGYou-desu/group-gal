@@ -2,7 +2,7 @@ import type { TrackName } from '../engine/types';
 
 /**
  * 内置 Web Audio 合成 BGM 与音效。逐字搬运自
- * group-chat-galgame.html:250-323（BGM）与 :849-860（sfx）。
+ * 原版单文件（BGM 与 sfx）。
  *
  * 离线可玩、免版权——不依赖任何音频资源文件。
  * 在无 AudioContext 的环境（如 jsdom、老旧浏览器）下安全降级为静默。

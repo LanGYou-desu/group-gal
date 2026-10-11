@@ -1,8 +1,8 @@
 import type { AffToastItem, CharTable } from '../engine/types';
 
 /**
- * 浮层提示。逐字搬运自 group-chat-galgame.html:668-671（toast）
- * 与 :710-713（好感度浮层的文案拼装）。
+ * 浮层提示。逐字搬运自原版单文件（toast）
+ * 另含好感度浮层的文案拼装。
  *
  * 出现 1750ms 后自动移除。
  */

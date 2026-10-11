@@ -4,7 +4,7 @@ import type {
 import { applyEff } from './effects';
 import { resolveEnding } from './ending';
 
-/** 与现状 group-chat-galgame.html 的计时默认值一致。 */
+/** 与现状 原版单文件的计时默认值一致。 */
 export const DEFAULT_DELAYS = {
   me: 280, msg: 520, sys: 560, note: 680, card: 760, fast: false,
 } as const;

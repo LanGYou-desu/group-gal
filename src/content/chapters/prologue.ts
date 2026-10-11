@@ -1,7 +1,7 @@
 import type { Script } from '../../engine/types';
 
 /**
- * 逐字搬运自 group-chat-galgame.html:331-349。
+ * 逐字搬运自原版单文件。
  * 阶段 5 按人设档案（docs/persona/）统一口癖：闹七的「，，」尾缀与立规腔、
  * Tttt 的起外号、G 的「干嘛呀」、一条鱼/黄油猫的「，」收尾。
  * 剧情走向、分支结构、选项数量与顺序、eff / goto 一律未动。

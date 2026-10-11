@@ -4,7 +4,7 @@ import { stageOf } from '../engine/effects';
 import { esc, hex2rgba } from './chat';
 
 /**
- * 群成员抽屉。逐字搬运自 group-chat-galgame.html:717-729，另加两处呈现层标记：
+ * 群成员抽屉。逐字搬运自原版单文件，另加两处呈现层标记：
  * - `data-stage` 供样式把好感阶段渲染成音游判定色（见 styles/chrome.css）
  * - 好感度条宽度 = min(100, aff/8*100)
  *

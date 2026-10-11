@@ -1,7 +1,7 @@
 import type { Script } from '../../engine/types';
 
 /**
- * 第三章与结局标签区。逐字搬运自 group-chat-galgame.html:571-605。
+ * 第三章与结局标签区。逐字搬运自原版单文件。
  * 阶段 5 按人设档案统一口癖。
  *
  * 注意最后 7 组 label+be：它们是 BE 的落点，由各处的 goto 直接引用

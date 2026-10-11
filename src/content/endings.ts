@@ -1,7 +1,7 @@
 import type { BadEndData, BeId, CharKey, RouteEndingData } from '../engine/types';
 
 /**
- * 9 个 Bad End。逐字搬运自 group-chat-galgame.html:608-627，**文案一字未改**。
+ * 9 个 Bad End。逐字搬运自原版单文件，**文案一字未改**。
  * BE01/02/05/17/19/20/24 由剧本节点直接触发；BE10/23 由 resolveEnding 触发。
  */
 export const BEDATA: Readonly<Record<BeId, BadEndData>> = {
@@ -26,7 +26,7 @@ export const BEDATA: Readonly<Record<BeId, BadEndData>> = {
 };
 
 /**
- * 7 条路线结局。逐字搬运自 group-chat-galgame.html:629-644。
+ * 7 条路线结局。逐字搬运自原版单文件。
  * 类型是 Partial —— 助攻/反派没有路线结局，由调用方回退到 nanao
  * （与现状 `ENDING[top] || ENDING.nanao` 一致）。
  */

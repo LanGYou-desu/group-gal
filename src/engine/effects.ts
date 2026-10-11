@@ -43,7 +43,7 @@ export function createInitialProgress(): SessionProgress {
 /**
  * 结算一次好感度变化。纯函数，返回新状态。
  *
- * 与现状 group-chat-galgame.html:705-715 **行为完全一致**：
+ * 与重构前 **行为完全一致**：
  * - 非 hero 角色的键被忽略
  * - 数值下限 0（Math.max）
  * - 浮层报告的是**原始 delta**，不是实际增量。因此好感度为 0 时
@@ -74,7 +74,7 @@ export function applyEff(
   return changed ? { state: { ...state, aff }, toasts } : { state, toasts: [] };
 }
 
-/** 与现状 group-chat-galgame.html:716 一致。 */
+/** 与重构前一致。 */
 export function stageOf(aff: number): StageName {
   if (aff <= 0) return '无视';
   if (aff <= 2) return '眼熟';
@@ -94,7 +94,7 @@ export interface RepeatResult {
 /**
  * 复读：把群里的最后一条他人消息原样再发一次，水群值 +1。
  *
- * 与现状 group-chat-galgame.html:889-899 行为一致：
+ * 与重构前行为一致：
  *   第 1 次 → ok（水群值 +1）
  *   连续第 2 次 → warn（提示将被禁言）
  *   连续第 3 次 → banned（调用方据此触发 BE24）

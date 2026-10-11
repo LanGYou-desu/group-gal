@@ -1,7 +1,7 @@
 import type { CharKey, CharTable } from '../engine/types';
 
 /**
- * 半透明纯色剪影立绘。逐字搬运自 group-chat-galgame.html:223-248。
+ * 半透明纯色剪影立绘。逐字搬运自原版单文件。
  *
  * 唯一改动：对全局 `CHARS` 的读取改为由参数传入 `chars`，
  * 使本模块不依赖具体角色表，可独立测试。
