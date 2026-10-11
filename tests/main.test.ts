@@ -81,6 +81,27 @@ describe('main.ts 装配接线', () => {
     expect(document.querySelectorAll('#drList .dr-row')).toHaveLength(12); // 11 + 助攻反派占位
   });
 
+  it('快进默认关闭，且新开一局会重置回关闭', async () => {
+    // 这条不经过 boot()——boot() 会主动开快进以加速其它用例
+    vi.resetModules();
+    document.body.innerHTML = '<div id="app"></div>';
+    await import('../src/main');
+
+    const fastBtn = () => document.getElementById('btnFast')!;
+    // 标题页即默认关闭
+    expect(fastBtn().textContent).toBe('快进');
+
+    click('btnStart');
+    expect(fastBtn().textContent).toBe('快进');
+
+    click('btnFast');
+    expect(fastBtn().textContent).toBe('快进:开');
+
+    // 重开一局：不继承上一局的加速状态
+    click('btnStart');
+    expect(fastBtn().textContent).toBe('快进');
+  });
+
   it('复读三次同一句话触发 BE24 禁言', async () => {
     await boot();
     const target = otherMsgs().at(-1)!;

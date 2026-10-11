@@ -56,6 +56,10 @@ async function startGame(): Promise<void> {
   updateTop();
   renderMembers(shell.drList, CHARS, session.state);
 
+  // 快进回到默认关闭：新开一局不继承上一局的加速状态
+  delays.fast = false;
+  shell.btnFast.textContent = '快进';
+
   BGM.set('chat');
   BGM.start('chat');
 
