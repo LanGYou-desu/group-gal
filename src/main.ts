@@ -105,7 +105,14 @@ shell.btnFast.onclick = () => {
   toasts.toast(delays.fast ? '已开启快进' : '已关闭快进');
 };
 
-/** 复读。逻辑全在 applyRepeat（可测试），这里只负责展示与 BE24 分支。 */
+/**
+ * 复读。逻辑全在 applyRepeat（就地推进 session，可测试），
+ * 这里只负责展示与 BE24 分支。
+ *
+ * ⚠️ 不要写成 `session = result.session`——run() 持有的是同一个对象引用，
+ * 重新赋值会让两侧永久分叉（复读读到冻结的历史、抽屉与结局面板显示过期数值）。
+ * 已有 tests/main.test.ts 钉住这一点。
+ */
 shell.btnRepeat.onclick = () => {
   if (!running) { toasts.toast('还没有可以复读的消息'); return; }
 
@@ -115,7 +122,6 @@ shell.btnRepeat.onclick = () => {
     return;
   }
 
-  session = result.session;
   chat.say('me', result.spoken);
   updateTop();
 

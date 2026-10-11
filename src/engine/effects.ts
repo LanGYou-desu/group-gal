@@ -81,7 +81,6 @@ export function stageOf(aff: number): StageName {
 export type RepeatOutcome = 'ok' | 'warn' | 'banned' | 'empty';
 
 export interface RepeatResult {
-  readonly session: Session;
   readonly outcome: RepeatOutcome;
   /** 被复读的文本；outcome 为 'empty' 时缺省 */
   readonly spoken?: string;
@@ -94,25 +93,23 @@ export interface RepeatResult {
  *   第 1 次 → ok（水群值 +1）
  *   连续第 2 次 → warn（提示将被禁言）
  *   连续第 3 次 → banned（调用方据此触发 BE24）
- *
  * 差别在于现状从 DOM 反查最后一条消息，这里改为读 history——
  * 于是「连续性」这条规则第一次可以被测试钉住。
+ *
+ * ⚠️ **就地推进传入的 session**，与 runner 的约定一致（session 是可变工作副本）。
+ * 这一点是硬要求：main.ts 与 run() 共享同一个对象引用，任何「返回新对象」的写法
+ * 都会让两侧永久分叉——复读读到冻结的历史、成员抽屉与结局面板显示过期数值。
  */
 export function applyRepeat(session: Session): RepeatResult {
   const last = [...session.history].reverse().find(e => e.kind === 'say' && e.who !== 'me');
-  if (!last || last.kind !== 'say') return { session, outcome: 'empty' };
+  if (!last || last.kind !== 'say') return { outcome: 'empty' };
 
   const s = session.state;
   const repeatN = s.lastRepeat === last.text ? s.repeatN + 1 : 1;
   const outcome: RepeatOutcome = repeatN >= 3 ? 'banned' : repeatN === 2 ? 'warn' : 'ok';
 
-  return {
-    outcome,
-    spoken: last.text,
-    session: {
-      ...session,
-      state: { ...s, lastRepeat: last.text, repeatN, water: s.water + 1 },
-      history: [...session.history, { kind: 'say', who: 'me', text: last.text }],
-    },
-  };
+  session.state = { ...s, lastRepeat: last.text, repeatN, water: s.water + 1 };
+  session.history.push({ kind: 'say', who: 'me', text: last.text });
+
+  return { outcome, spoken: last.text };
 }

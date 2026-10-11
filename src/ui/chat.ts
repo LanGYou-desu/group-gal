@@ -45,7 +45,7 @@ export function createChatView(
         wrap.innerHTML = '<div class="body"><div class="bub"></div></div>';
       } else {
         wrap.innerHTML =
-          `<div class="av" style="background:${hex2rgba(c.color, 0.14)};border-color:${hex2rgba(c.color, 0.4)}">${c.emoji}</div>
+          `<div class="av" style="background:${hex2rgba(c.color, 0.14)};border-color:${hex2rgba(c.color, 0.4)}">${esc(c.emoji)}</div>
            <div class="body"><div class="nm">${esc(c.name)}<span class="role">${esc(c.role)}</span></div><div class="bub"></div></div>`;
       }
 

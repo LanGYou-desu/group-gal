@@ -16,7 +16,7 @@ export function renderMembers(host: HTMLElement, chars: CharTable, state: GameSt
     const a = state.aff[k] ?? 0;
     const pct = Math.min(100, a / 8 * 100);
     return `<div class="dr-row">
-      <div class="av" style="background:${hex2rgba(c.color, 0.14)};border-color:${hex2rgba(c.color, 0.4)}">${c.emoji}</div>
+      <div class="av" style="background:${hex2rgba(c.color, 0.14)};border-color:${hex2rgba(c.color, 0.4)}">${esc(c.emoji)}</div>
       <div class="dr-mid"><div class="t">${esc(c.name)}</div><div class="s">${esc(c.role)}</div>
       <div class="bar"><i style="width:${pct}%"></i></div></div>
       <div class="dr-stage">${stageOf(a)}</div></div>`;

@@ -86,64 +86,84 @@ describe('复读与水群值（Review Focus #2：连续性语义）', () => {
   const yu = { kind: 'say', who: 'yu', text: '新人？' } as const;
 
   it('无历史时返回 empty，不产生任何变化', () => {
-    const r = applyRepeat(sess([]));
+    const s = sess([]);
+    const r = applyRepeat(s);
     expect(r.outcome).toBe('empty');
-    expect(r.session.state.water).toBe(0);
+    expect(s.state.water).toBe(0);
     expect(r.spoken).toBeUndefined();
   });
 
   it('首次复读：水群值 +1，提示成功', () => {
-    const r = applyRepeat(sess([yu]));
+    const s = sess([yu]);
+    const r = applyRepeat(s);
     expect(r.outcome).toBe('ok');
-    expect(r.session.state.water).toBe(1);
-    expect(r.session.state.repeatN).toBe(1);
+    expect(s.state.water).toBe(1);
+    expect(s.state.repeatN).toBe(1);
     expect(r.spoken).toBe('新人？');
   });
 
   it('复读会把玩家消息追加进 history', () => {
-    const r = applyRepeat(sess([yu]));
-    expect(r.session.history.at(-1)).toEqual({ kind: 'say', who: 'me', text: '新人？' });
+    const s = sess([yu]);
+    applyRepeat(s);
+    expect(s.history.at(-1)).toEqual({ kind: 'say', who: 'me', text: '新人？' });
   });
 
   it('连续第二次：提示将被禁言', () => {
-    const r1 = applyRepeat(sess([yu]));
-    const r2 = applyRepeat(r1.session);
+    const s = sess([yu]);
+    applyRepeat(s);
+    const r2 = applyRepeat(s);
     expect(r2.outcome).toBe('warn');
-    expect(r2.session.state.repeatN).toBe(2);
+    expect(s.state.repeatN).toBe(2);
   });
 
   it('连续第三次：banned（调用方据此触发 BE24）', () => {
-    const r1 = applyRepeat(sess([yu]));
-    const r2 = applyRepeat(r1.session);
-    const r3 = applyRepeat(r2.session);
+    const s = sess([yu]);
+    applyRepeat(s);
+    applyRepeat(s);
+    const r3 = applyRepeat(s);
     expect(r3.outcome).toBe('banned');
-    expect(r3.session.state.water).toBe(3);
+    expect(s.state.water).toBe(3);
   });
 
   it('中间插入他人新消息后，连续性归零', () => {
-    const r1 = applyRepeat(sess([yu]));
-    const r2 = applyRepeat(r1.session);
-    expect(r2.session.state.repeatN).toBe(2);
+    const s = sess([yu]);
+    applyRepeat(s);
+    applyRepeat(s);
+    expect(s.state.repeatN).toBe(2);
 
-    const withNew: Session = {
-      ...r2.session,
-      history: [...r2.session.history, { kind: 'say', who: 'g', text: '新谱' }],
-    };
-    const r3 = applyRepeat(withNew);
+    s.history.push({ kind: 'say', who: 'g', text: '新谱' });
+    const r3 = applyRepeat(s);
     expect(r3.outcome).toBe('ok');
-    expect(r3.session.state.repeatN).toBe(1);
+    expect(s.state.repeatN).toBe(1);
     expect(r3.spoken).toBe('新谱');
   });
 
   it('复读的是最后一条他人消息，不取自己的', () => {
-    const r = applyRepeat(sess([yu, { kind: 'say', who: 'me', text: '我说的话' }]));
-    expect(r.spoken).toBe('新人？');
+    const s = sess([yu, { kind: 'say', who: 'me', text: '我说的话' }]);
+    expect(applyRepeat(s).spoken).toBe('新人？');
   });
 
   it('系统消息与旁白不参与复读', () => {
-    const r = applyRepeat(sess([
+    const s = sess([
       yu, { kind: 'sys', text: '成员 80 → 81' }, { kind: 'note', text: '旁白' },
-    ]));
-    expect(r.spoken).toBe('新人？');
+    ]);
+    expect(applyRepeat(s).spoken).toBe('新人？');
+  });
+
+  it('就地推进传入的 session —— 引用保持不变（集成接线的前提）', () => {
+    // 这条是回归护栏：main.ts 与 run() 共享同一对象引用。
+    // 若 applyRepeat 改回「返回新对象」，main.ts 的 session 会与 runner 的永久分叉，
+    // 表现为复读读到冻结的历史、成员抽屉与结局面板显示过期数值。
+    // 已有 tests/main.test.ts 从装配层端到端钉住该行为。
+    const s = sess([yu]);
+    const sameRef = s;
+    const historyRef = s.history;
+
+    applyRepeat(s);
+
+    expect(sameRef.state.water).toBe(1);
+    expect(sameRef.state.repeatN).toBe(1);
+    expect(historyRef).toHaveLength(2);          // 同一个数组被 push
+    expect(s.history).toBe(historyRef);
   });
 });
