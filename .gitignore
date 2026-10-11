@@ -27,5 +27,6 @@ npm-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# ---------- SDD 执行账本（scratch，不入库）----------
+# ---------- 执行账本与工具产物（scratch，不入库）----------
 .superpowers/
+.playwright-mcp/
