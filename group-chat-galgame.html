@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>😂群聊 · 全群攻陷计划</title>
+<style>
+  :root{
+    --bg:#0b0910; --panel:#15121f; --line:rgba(255,255,255,.10);
+    --pink:#ff6ec7; --cyan:#5ce1e6; --purple:#a06bff; --yellow:#ffd76e;
+    --txt:#eceaf5; --dim:#9d97b2; --bub:#241f33;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:radial-gradient(900px 600px at 85% -10%,rgba(160,107,255,.20),transparent 60%),
+      radial-gradient(700px 500px at 0% 10%,rgba(255,110,199,.16),transparent 55%),var(--bg);
+    color:var(--txt); font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
+    overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  .screen{position:fixed;inset:0;display:flex;flex-direction:column}
+  .hidden{display:none !important}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+  #title{align-items:center;justify-content:center;text-align:center;padding:24px;z-index:5;overflow:hidden}
+  #title::after{content:"😂";position:absolute;right:-6vw;top:-6vh;font-size:42vh;opacity:.05;transform:rotate(-14deg)}
+  .t-kicker{font-size:11px;letter-spacing:.34em;color:var(--cyan);border:1px solid rgba(92,225,230,.35);
+    border-radius:999px;padding:6px 15px;margin-bottom:24px;display:inline-block}
+  #title h1{font-size:clamp(46px,11vw,92px);font-weight:900;line-height:1;
+    background:linear-gradient(100deg,#fff 0%,var(--pink) 42%,var(--purple) 70%,var(--cyan) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .t-sub{margin-top:12px;font-size:clamp(18px,4.2vw,28px);font-weight:800;letter-spacing:.08em}
+  .t-tag{margin-top:14px;color:var(--dim);font-size:14px}
+  .t-btns{margin-top:38px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .btn{border:1px solid var(--line);background:rgba(255,255,255,.05);border-radius:14px;
+    padding:12px 22px;font-size:14.5px;font-weight:600;transition:.18s;backdrop-filter:blur(8px)}
+  .btn:hover{border-color:rgba(255,110,199,.55);transform:translateY(-2px)}
+  .btn.primary{background:linear-gradient(120deg,var(--purple),var(--pink));border:none;color:#fff;
+    box-shadow:0 10px 30px rgba(255,110,199,.3)}
+  .t-foot{margin-top:30px;color:var(--dim);font-size:11.5px;opacity:.8}
+
+  #game{z-index:4;background:var(--bg)}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:10px 14px;border-bottom:1px solid var(--line);background:rgba(21,18,31,.92);backdrop-filter:blur(10px)}
+  .tb-title{font-weight:800;font-size:15px}
+  .tb-meta{font-size:11.5px;color:var(--dim);margin-top:2px}
+  .tb-meta b{color:var(--yellow)}
+  .tb-right{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .mini{font-size:12px;border:1px solid var(--line);border-radius:10px;padding:6px 10px;
+    background:rgba(255,255,255,.04);transition:.15s;white-space:nowrap}
+  .mini:hover{border-color:rgba(92,225,230,.6);color:var(--cyan)}
+  .mini:active{transform:scale(.95)}
+
+  .chat{flex:1;overflow-y:auto;padding:16px 14px 8px;scroll-behavior:smooth}
+  .chat::-webkit-scrollbar{width:6px}
+  .chat::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:3px}
+
+  .msg{display:flex;gap:9px;margin:11px 0;align-items:flex-start;animation:pop .22s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .av{width:38px;height:38px;flex:0 0 38px;border-radius:11px;display:grid;place-items:center;
+    font-size:19px;border:1px solid var(--line)}
+  .body{max-width:78%}
+  .nm{font-size:11px;color:var(--dim);margin-bottom:3px;display:flex;gap:6px;align-items:center}
+  .nm .role{color:var(--cyan);font-size:10px;opacity:.75}
+  .bub{background:var(--bub);border:1px solid var(--line);border-radius:4px 14px 14px 14px;
+    padding:9px 13px;font-size:14.5px;line-height:1.6;word-break:break-word}
+  .msg.me{flex-direction:row-reverse}
+  .msg.me .body{display:flex;flex-direction:column;align-items:flex-end}
+  .msg.me .nm{flex-direction:row-reverse}
+  .msg.me .bub{background:linear-gradient(135deg,rgba(160,107,255,.9),rgba(255,110,199,.9));
+    border-radius:14px 4px 14px 14px;color:#fff;border:none}
+  .sys,.note{text-align:center;margin:14px 0;animation:pop .22s ease}
+  .sys{font-size:12px;color:var(--dim)}
+  .sys span{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+  .note{font-size:13px;color:#cdc8de;font-style:italic}
+
+  .card{margin:14px auto;width:min(440px,94%);display:flex;gap:14px;align-items:center;
+    background:linear-gradient(150deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+    border:1px solid var(--line);border-radius:18px;padding:14px;animation:pop .3s ease}
+  .card .sil{flex:0 0 76px}
+  .card .cinfo h4{font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px}
+  .card .cinfo .r{font-size:12px;color:var(--cyan);margin-top:2px}
+  .card .cinfo p{font-size:12.5px;color:var(--dim);margin-top:6px;line-height:1.55}
+
+  .composer{padding:12px 14px 16px;border-top:1px solid var(--line);background:rgba(21,18,31,.95);
+    backdrop-filter:blur(10px);min-height:64px}
+  .c-prompt{font-size:12.5px;color:var(--dim);margin-bottom:9px}
+  .choice{width:100%;text-align:left;border:1px solid var(--line);background:rgba(255,255,255,.045);
+    border-radius:14px;padding:12px 15px;margin-bottom:8px;font-size:14px;line-height:1.5;transition:.16s}
+  .choice:hover{border-color:var(--pink);background:rgba(255,110,199,.12);transform:translateX(3px)}
+  .choice:active{transform:scale(.99)}
+  .c-idle{font-size:12.5px;color:var(--dim);text-align:center;padding:8px}
+
+  #stageSil{position:fixed;right:-2vw;bottom:-2vh;width:46vw;max-width:520px;opacity:.10;
+    pointer-events:none;z-index:3;transition:opacity .5s}
+  #stageSil svg{width:100%;height:auto}
+
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(360px,88vw);z-index:30;
+    background:rgba(18,15,26,.97);border-left:1px solid var(--line);backdrop-filter:blur(14px);
+    transform:translateX(100%);transition:transform .28s ease;display:flex;flex-direction:column}
+  .drawer.open{transform:none}
+  .dr-h{padding:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .dr-h b{font-size:16px}
+  .dr-list{flex:1;overflow-y:auto;padding:12px}
+  .dr-row{display:flex;gap:11px;align-items:center;padding:10px;border-radius:14px;margin-bottom:6px}
+  .dr-row:hover{background:rgba(255,255,255,.04)}
+  .dr-row .av{width:40px;height:40px;flex:0 0 40px;font-size:20px}
+  .dr-mid{flex:1;min-width:0}
+  .dr-mid .t{font-size:14px;font-weight:700}
+  .dr-mid .s{font-size:11px;color:var(--dim)}
+  .bar{height:6px;border-radius:4px;background:rgba(255,255,255,.09);margin-top:5px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;border-radius:4px;
+    background:linear-gradient(90deg,var(--cyan),var(--pink));transition:width .5s}
+  .dr-stage{font-size:11px;color:var(--yellow);min-width:38px;text-align:right}
+
+  #toasts{position:fixed;left:50%;top:64px;transform:translateX(-50%);z-index:40;
+    display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+  .toast{background:rgba(0,0,0,.72);border:1px solid var(--line);border-radius:999px;
+    padding:6px 15px;font-size:12.5px;animation:toast 1.7s ease forwards}
+  @keyframes toast{0%{opacity:0;transform:translateY(-8px)}15%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+
+  .overlay{position:fixed;inset:0;z-index:50;background:rgba(6,5,10,.9);backdrop-filter:blur(10px);
+    display:flex;align-items:center;justify-content:center;padding:22px}
+  .ov{width:min(560px,94vw);border-radius:22px;padding:30px 26px;text-align:center;
+    border:1px solid var(--line);background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+    animation:pop .35s ease;max-height:90vh;overflow-y:auto}
+  .ov .tag{font-size:11px;letter-spacing:.28em;color:var(--dim)}
+  .ov h2{font-size:clamp(22px,5vw,30px);font-weight:900;margin:10px 0 16px;color:var(--pink)}
+  .ov p{font-size:14.5px;color:#d8d4e6;line-height:1.85;text-align:left;white-space:pre-line}
+  .ov .btns{margin-top:24px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .ov .stat-sum{margin-top:18px;text-align:left;font-size:13px;color:var(--dim);
+    border-top:1px dashed var(--line);padding-top:14px}
+  .ov .stat-sum b{color:var(--yellow)}
+  .be-ov{background:linear-gradient(160deg,rgba(255,90,120,.14),rgba(255,255,255,.02));
+    border-color:rgba(255,90,120,.4)}
+  .be-ov h2{color:#ff9db8}
+  .end-ov{background:linear-gradient(160deg,rgba(92,225,230,.12),rgba(160,107,255,.08));
+    border-color:rgba(92,225,230,.35)}
+  .end-ov h2{color:var(--cyan)}
+  a{color:var(--cyan)}
+  @media(max-width:520px){
+    .body{max-width:84%}
+    #stageSil{width:80vw;opacity:.08}
+  }
+</style>
+</head>
+<body>
+
+<div id="title" class="screen">
+  <div class="t-kicker">GALGAME DEMO · 恋爱模拟 ADV</div>
+  <h1>😂群聊</h1>
+  <div class="t-sub">全 群 攻 陷 计 划</div>
+  <p class="t-tag">—— 第 81 位群友的攻略日志 ——</p>
+  <div class="t-btns">
+    <button id="btnStart" class="btn primary">开始游戏</button>
+    <button id="btnBgmTitle" class="btn">🔊 音乐：开</button>
+    <button id="btnAbout" class="btn">关于 / 素材</button>
+  </div>
+  <div class="t-foot">单文件可玩 · 无需联网 · 内置合成 BGM</div>
+</div>
+
+<div id="game" class="screen hidden">
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-title">😂群聊</div>
+      <div class="tb-meta">成员 <b id="mCount">81</b> · 水群值 <b id="mWater">0</b></div>
+    </div>
+    <div class="tb-right">
+      <button id="btnMembers" class="mini">群成员</button>
+      <button id="btnRepeat" class="mini">复读</button>
+      <button id="btnFast" class="mini">快进</button>
+      <button id="btnBgm" class="mini">🔊</button>
+    </div>
+  </div>
+  <div id="chat" class="chat"></div>
+  <div id="composer" class="composer"><div class="c-idle">正在加载群聊……</div></div>
+</div>
+
+<div id="stageSil"></div>
+<div id="toasts"></div>
+
+<div id="drawer" class="drawer">
+  <div class="dr-h"><b>群成员</b><button class="mini" id="btnCloseDr">关闭</button></div>
+  <div class="dr-list" id="drList"></div>
+</div>
+
+<div id="overlay" class="overlay hidden"><div class="ov" id="ovCard"></div></div>
+
+<script>
+/* ============================================================
+   😂群聊 · 全群攻陷计划 — 单文件可玩 Demo v0.2
+   ============================================================ */
+
+/* ---------- 角色 ---------- */
+const CHARS = {
+  nanao:{name:'闹七', sub:'null7323 · 群主', emoji:'👑', color:'#ff6ec7', role:'傲娇暴君',
+    desc:'😂群聊的群主，自己开着 MC / 帕鲁服务器，还是 Arcaea 知名谱师、写谱高手。嘴硬心软，护短——嘴上天天喊解散群，真踢起人来一次也没舍得。', hero:true, shape:'crown'},
+  yu:{name:'一条鱼', sub:'别问她为什么叫鱼', emoji:'🐟', color:'#5ce1e6', role:'天然呆',
+    desc:'这个群最单纯的人，MC 机械动力工程师。平时话不多，一聊红石就停不下来。', hero:true, shape:'fish'},
+  cat:{name:'黄油猫', sub:'不是那个号', emoji:'🐱', color:'#ffd76e', role:'守门猫',
+    desc:'一条鱼的恋人，医学系学姐。嘴上段子最多，心最软、最护短。谁欺负一条鱼她跟谁急。', hero:true, shape:'cat'},
+  g:{name:'G', sub:'Lriltu', emoji:'🅶', color:'#a06bff', role:'矛盾系大佬',
+    desc:'舞萌 / 写谱大佬，管理员，反骨，最爱嘴上杠群主。技术优越感和自卑来回横跳。', hero:true, shape:'star'},
+  shisuan:{name:'石蒜', sub:'我的父亲是根哥', emoji:'🧄', color:'#8be08b', role:'孤岛写谱人',
+    desc:'中二、自黑、写谱狂魔。他说：我的社交渠道，几乎全在这个群里了。', hero:true, shape:'garlic'},
+  tttt:{name:'Tttt', sub:'起外号专家', emoji:'🎭', color:'#ff9f6e', role:'梗王 · 管理员',
+    desc:'起外号一绝，阴阳怪气但心软。名言：面包是我的。', hero:true, shape:'mask'},
+  shei:{name:'誰', sub:'就是蛋蛋', emoji:'🥚', color:'#cfcfe8', role:'meta 攻略宅',
+    desc:'情绪化、AI token 依赖，正在把整个群当成 galgame 攻略。', hero:true, shape:'egg'},
+  shiban:{name:'石斑鱼', sub:'🪨🦓🐟', emoji:'🐠', color:'#7fe0c0', role:'猎团',
+    desc:'怪猎党，卖弱与阴阳并存。名言：我菜到神他妈牛逼了。', hero:true, shape:'fin'},
+  taffy:{name:'taffy', sub:'石蒜神是我爸爸', emoji:'🧦', color:'#ffb3d9', role:'落地水',
+    desc:'MC 里永远的经典：喊一句看我落地水，然后掉进虚空。群里笑了她一个月。', hero:true, shape:'bucket'},
+  c30586:{name:'30586', sub:'CraZy Thursday Vme50', emoji:'🍗', color:'#ffcf6e', role:'催活动',
+    desc:'每周四准时上线催 MC。名言：何时 mc，不来我人没了。', hero:true, shape:'moon'},
+  mianbao:{name:'面包', sub:'键鼠交互', emoji:'🥖', color:'#f0c98a', role:'拍框大王',
+    desc:'管理员，锐评谱面一绝，自称拍框大王。Tttt 喜欢的那块面包就是他。', hero:true, shape:'bread'},
+  gen:{name:'根哥', sub:'unity实训', emoji:'🧑‍🔧', color:'#7fb0ff', role:'助攻', desc:'把你拉进群的人。', shape:'wrench'},
+  aka:{name:'aka', sub:'token 情报商', emoji:'📉', color:'#9ad0ff', role:'助攻', desc:'模型一降智就在群里嚎。', shape:'wave'},
+  moku:{name:'蘑菇汤', sub:'藤原氏', emoji:'🍄', color:'#ff5a78', role:'反派', desc:'群规挑战者，专挑群主和新人下嘴。', shape:'mushroom'},
+};
+
+/* ---------- 半透明纯色剪影立绘 ---------- */
+function sil(key, size){
+  const c = (CHARS[key] && CHARS[key].color) || '#888';
+  const sh = (CHARS[key] && CHARS[key].shape) || 'dot';
+  let acc = '';
+  if(sh==='crown') acc = `<path d="M32 17 L40 27 L50 12 L60 27 L68 17 L64 37 L36 37 Z" fill="${c}" opacity="0.9"/>`;
+  else if(sh==='cat') acc = `<path d="M31 22 L35 4 L48 17 Z" fill="${c}" opacity="0.9"/><path d="M69 22 L65 4 L52 17 Z" fill="${c}" opacity="0.9"/>`;
+  else if(sh==='fish') acc = `<path d="M71 66 q15 -7 17 3 q-7 9 -17 4 z" fill="${c}" opacity="0.9"/><circle cx="80" cy="69" r="2.2" fill="#0b0910"/>`;
+  else if(sh==='star') acc = `<path d="M50 6 l4.5 11 12 1 -9 8 3 12 -10.5 -6.5 -10.5 6.5 3 -12 -9 -8 12 -1 z" fill="${c}" opacity="0.9"/>`;
+  else if(sh==='garlic') acc = `<path d="M50 8 q11 9 8.5 20 q-8.5 -5 -17 0 q-2.5 -11 8.5 -20 z" fill="${c}" opacity="0.9"/>`;
+  else if(sh==='mask') acc = `<ellipse cx="50" cy="41" rx="13" ry="8.5" fill="#0b0910" opacity="0.55"/><ellipse cx="44" cy="40" rx="3" ry="3.5" fill="${c}" opacity="0.9"/><ellipse cx="56" cy="40" rx="3" ry="3.5" fill="${c}" opacity="0.9"/>`;
+  else if(sh==='egg') acc = `<ellipse cx="50" cy="28" rx="15" ry="11" fill="${c}" opacity="0.55"/>`;
+  else if(sh==='fin') acc = `<path d="M50 8 q13 8 0 20 q-13 -12 0 -20 z" fill="${c}" opacity="0.9"/>`;
+  else if(sh==='bucket') acc = `<path d="M40 6 h20 v12 h-20 z" fill="${c}" opacity="0.9"/><path d="M45 6 q5 -8 10 0" stroke="${c}" fill="none" stroke-width="3" opacity="0.9"/>`;
+  else if(sh==='moon') acc = `<path d="M58 6 a11 11 0 1 0 6 20 a9 9 0 1 1 -6 -20 z" fill="${c}" opacity="0.9"/>`;
+  else if(sh==='bread') acc = `<path d="M30 12 q20 -10 40 0 v10 h-40 z" fill="${c}" opacity="0.9"/>`;
+  else if(sh==='wrench') acc = `<rect x="43" y="5" width="5" height="17" rx="2.5" fill="${c}" opacity="0.85"/><rect x="52" y="5" width="5" height="17" rx="2.5" fill="${c}" opacity="0.85"/>`;
+  else if(sh==='mushroom') acc = `<path d="M26 26 q24 -24 48 0 q-24 9 -48 0 z" fill="${c}" opacity="0.9"/>`;
+  else if(sh==='wave') acc = `<path d="M30 34 q6 -9 12 0 t12 0 t12 0" stroke="${c}" fill="none" stroke-width="3" opacity="0.85"/>`;
+  else acc = `<circle cx="50" cy="20" r="5" fill="${c}" opacity="0.85"/>`;
+  return `<svg viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true">
+    <g fill="${c}" opacity="0.5">
+      <circle cx="50" cy="38" r="19"/>
+      <path d="M16 100 C16 76 32 62 50 62 C68 62 84 76 84 100 Z"/>
+    </g>${acc}</svg>`;
+}
+
+/* ---------- BGM：内置 Web Audio 合成（离线可玩，免版权） ---------- */
+const BGM = (() => {
+  let ctx=null, master=null, timer=null, step=0, nextT=0, cur='chat', on=true;
+  const mtof = m => 440 * Math.pow(2, (m-69)/12);
+  const TR = {
+    chat:{ bpm:126, prog:[[48,55,60,64],[45,52,57,60],[43,50,55,59],[41,48,53,57]],
+      lead:'square', bass:'triangle', arp:[0,1,2,3,2,1,2,3], vol:0.15 },
+    night:{ bpm:72, prog:[[45,52,57,60],[43,50,55,58],[41,48,53,57],[40,47,52,55]],
+      lead:'sine', bass:'sine', arp:[0,2,1,3,3,1,2,0], vol:0.16 },
+    tension:{ bpm:152, prog:[[40,43,47,50],[41,44,47,50]],
+      lead:'sawtooth', bass:'sawtooth', arp:[0,1,2,1,3,1,2,1], vol:0.13 },
+    warm:{ bpm:96, prog:[[48,55,59,64],[46,53,57,62],[43,50,55,59],[41,48,53,57]],
+      lead:'triangle', bass:'sine', arp:[0,1,3,2,3,1,2,0], vol:0.15 },
+  };
+  function ensure(){
+    if(ctx) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return;
+    ctx = new AC(); master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination);
+  }
+  function note(t,f,dur,type,g){
+    const o=ctx.createOscillator(), gn=ctx.createGain();
+    o.type=type; o.frequency.value=f;
+    gn.gain.setValueAtTime(0,t); gn.gain.linearRampToValueAtTime(g,t+0.012);
+    gn.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(gn); gn.connect(master); o.start(t); o.stop(t+dur+0.03);
+  }
+  function kick(t){
+    const o=ctx.createOscillator(), gn=ctx.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(48,t+0.13);
+    gn.gain.setValueAtTime(0.9,t); gn.gain.exponentialRampToValueAtTime(0.001,t+0.17);
+    o.connect(gn); gn.connect(master); o.start(t); o.stop(t+0.2);
+  }
+  function hat(t,g){
+    const b=ctx.createBuffer(1,900,ctx.sampleRate), d=b.getChannelData(0);
+    for(let i=0;i<900;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/900,7);
+    const s=ctx.createBufferSource(); s.buffer=b;
+    const gn=ctx.createGain(); gn.gain.value=g; s.connect(gn); gn.connect(master); s.start(t);
+  }
+  function sched(t){
+    const T=TR[cur]; const ci=Math.floor(step/8)%T.prog.length; const ch=T.prog[ci];
+    if(step%8===0 || step%8===4) note(t, mtof(ch[0]-24), 0.5, T.bass, 0.22);
+    note(t, mtof(ch[T.arp[step%T.arp.length]]), 0.16, T.lead, 0.06);
+    if(step%8===0 || step%8===4) kick(t);
+    if(step%2===1) hat(t, 0.045);
+  }
+  function tick(){
+    if(!ctx) return;
+    while(nextT < ctx.currentTime + 0.14){ sched(nextT); nextT += 60 / TR[cur].bpm / 4; step = (step+1) % 32; }
+  }
+  function level(){ return on ? TR[cur].vol : 0; }
+  return {
+    start(track){
+      ensure(); if(!ctx) return;
+      if(ctx.state === 'suspended') ctx.resume();
+      if(track){ cur = track; step = 0; nextT = ctx.currentTime + 0.06; }
+      if(!timer) timer = setInterval(tick, 25);
+      master.gain.cancelScheduledValues(ctx.currentTime);
+      master.gain.linearRampToValueAtTime(level(), ctx.currentTime + 0.5);
+    },
+    set(track){
+      if(!ctx){ cur = track; return; }
+      if(track !== cur){ cur = track; step = 0; nextT = ctx.currentTime + 0.06; }
+      if(on){ master.gain.cancelScheduledValues(ctx.currentTime);
+        master.gain.linearRampToValueAtTime(level(), ctx.currentTime + 0.4); }
+    },
+    toggle(){
+      on = !on;
+      if(ctx){ master.gain.cancelScheduledValues(ctx.currentTime);
+        master.gain.linearRampToValueAtTime(level(), ctx.currentTime + 0.25); }
+      return on;
+    }
+  };
+})();
+
+/* ---------- 剧本 ----------
+   节点： msg / sys / note / card / choice / hub / jump / bgm / aff / set / be / ending
+   choice 选项： {t 按钮文字, say 实际发出的消息(默认=t), eff, set, goto}
+   hub   选项： {t, once, eff, set, goto}
+*/
+const S = [
+  ['label','start'],
+  ['sys','「根哥」把你拉进了群聊 😂群聊'],
+  ['sys','群成员 80 → 81'],
+  ['note','你还没来得及打招呼，屏幕已经被刷屏淹没了。'],
+  ['msg','gen','@全体成员 来活人了 都收着点'],
+  ['msg','tttt','新人？'],
+  ['msg','shisuan','新人？'],
+  ['msg','yu','新人？'],
+  ['msg','tttt','复读机是吧'],
+  ['msg','cat','行了行了 别把新人吓跑了'],
+  ['msg','g','稀奇 这破群仨月没进过人了'],
+  ['msg','nanao','来了个新的'],
+  ['msg','nanao','先说明 这儿嘴上没把门的 别玻璃心'],
+  ['choice','说点什么',[
+    {t:'音游萌新 求大佬带带', eff:{g:1,shisuan:1}, goto:'intro_done'},
+    {t:'我 token 管够 谁要借号说话', eff:{nanao:2,shei:2}, goto:'intro_done'},
+    {t:'打打 Arcaea 也就一菜鸡', eff:{nanao:1,g:1}, goto:'intro_done'},
+    {t:'发个猫猫头', say:'🐱', eff:{cat:1,nanao:1}, goto:'intro_done'},
+  ]],
+
+  ['label','intro_done'],
+  ['msg','nanao','行 待着吧'],
+  ['card','nanao'],
+  ['msg','nanao','先说好 这周 MC 服开新地 谁不来我解散群'],
+  ['msg','yu','我要挖矿 谁跟我搭机械动力'],
+  ['msg','cat','我陪鱼'],
+  ['choice','怎么接',[
+    {t:'我也来 顺便帮你把地铁修到矿区', eff:{nanao:2,yu:1}, goto:'ch1a'},
+    {t:'我音游都打不过 还是别拖后腿了', eff:{nanao:-1,shei:1}, goto:'ch1a'},
+    {t:'你谁啊 凭什么命令我', goto:'BE01'},
+  ]],
+
+  ['label','ch1a'],
+  ['msg','shisuan','群主先别解散 我把那首谱写完就来'],
+  ['msg','g','你那谱写了半年了吧'],
+  ['msg','shisuan','快了快了'],
+  ['note','—— 群友情报 · 解锁 ——'],
+  ['card','yu'],
+  ['msg','yu','新人 你玩机械动力吗'],
+  ['card','cat'],
+  ['msg','cat','说清楚点 别带歪我家鱼'],
+  ['choice','怎么回',[
+    {t:'玩的 我能给你搭个自动农场', eff:{yu:2,cat:1}, goto:'ch1b'},
+    {t:'黄油猫姐姐好凶哦', eff:{cat:2}, goto:'ch1b'},
+    {t:'给你们讲个黄段子', goto:'BE05'},
+  ]],
+
+  ['label','ch1b'],
+  ['card','g'],
+  ['msg','g','新谱 定数 12 谁打谁骂'],
+  ['msg','nanao','发我看看'],
+  ['msg','g','你先别抢我风头'],
+  ['choice','评价这张谱',[
+    {t:'这个配置 尾杀肯定绝赞', eff:{g:2,nanao:1}, goto:'ch1c'},
+    {t:'这谱不行 配置稀烂', goto:'BE02'},
+    {t:'我根本打不了 你们太强了', eff:{shei:1}, goto:'ch1c'},
+  ]],
+
+  ['label','ch1c'],
+  ['bgm','night'],
+  ['sys','时间跳到 00:47'],
+  ['msg','shisuan','信这个真实消息 不如信我是男娘'],
+  ['msg','shisuan','我的社交渠道 几乎全在这个群里了'],
+  ['card','shisuan'],
+  ['choice','深夜 回石蒜',[
+    {t:'那周末一起吃个饭吧 现实里的那种', eff:{shisuan:2}, goto:'ch1d'},
+    {t:'哈哈哈哈哈哈', eff:{shisuan:-1}, goto:'ch1d'},
+    {t:'我也差不多 我社恐', eff:{shisuan:1}, goto:'ch1d'},
+  ]],
+
+  ['label','ch1d'],
+  ['bgm','chat'],
+  ['card','tttt'],
+  ['msg','tttt','面包是我的'],
+  ['msg','tttt','允许你出了吗'],
+  ['choice','Tttt 在护食',[
+    {t:'面包分你一半', eff:{tttt:2}, goto:'ch1e'},
+    {t:'面包是谁啊', eff:{tttt:0}, goto:'ch1e'},
+    {t:'我偏要拿', goto:'BE17'},
+  ]],
+
+  ['label','ch1e'],
+  ['card','shei'],
+  ['msg','shei','这破群我可以做成 galgame'],
+  ['msg','shei','我已经在攻略你们了 你是我的第七个存档'],
+  ['choice','……',[
+    {t:'那我反过来攻略你', eff:{shei:2}, goto:'ch1f'},
+    {t:'先观望一下', say:'…', eff:{shei:1}, goto:'ch1f'},
+    {t:'行啊 我愿意当你的攻略对象', set:'sheiTrap', eff:{shei:1}, goto:'ch1f'},
+  ]],
+
+  ['label','ch1f'],
+  ['note','—— 第二章 · 群里的日常 ——'],
+  ['note','白天上课 晚上开黑 你在群里混熟了几天。今晚 去哪边？'],
+  ['jump','hub'],
+
+  /* ======== 支线中枢 ======== */
+  ['label','hub'],
+  ['hub','今晚去哪边混？',[
+    {t:'一条鱼叫你去 MC 机械动力服', once:true, goto:'s_mc'},
+    {t:'跟 G 和面包去拼机出勤', once:true, goto:'s_arc'},
+    {t:'陪石蒜通宵写谱', once:true, goto:'s_chart'},
+    {t:'跟黄油猫他们去干饭', once:true, goto:'s_food'},
+    {t:'找石斑鱼打怪猎', once:true, goto:'s_mh'},
+    {t:'蘑菇汤在群里阴阳你 去会一会', once:true, goto:'s_moku'},
+    {t:'不混了 直接推进主线', goto:'ch3'},
+  ]],
+
+  /* ---- 支线：MC 机械动力 ---- */
+  ['label','s_mc'],
+  ['bgm','chat'],
+  ['sys','你被拉进了 MC 服'],
+  ['card','yu'],
+  ['msg','yu','来 先教你做水车'],
+  ['msg','c30586','何时 mc 我等一晚上上了'],
+  ['msg','taffy','我来了我来了'],
+  ['msg','taffy','看我落地水'],
+  ['sys','taffy 掉进了虚空'],
+  ['msg','tttt','？？？'],
+  ['msg','g','经典'],
+  ['msg','cat','taffy 你能不能行'],
+  ['choice','怎么反应',[
+    {t:'别急 落地水的时机我教你', eff:{yu:1,taffy:2}, goto:'s_mc2'},
+    {t:'哈哈哈哈哈笑死', eff:{taffy:-1}, goto:'s_mc2'},
+    {t:'虚空了 下次稳点就好', eff:{taffy:1}, goto:'s_mc2'},
+  ]],
+  ['label','s_mc2'],
+  ['msg','taffy','谢谢你们不笑我'],
+  ['msg','c30586','下次记得 @我 我随时都在'],
+  ['msg','yu','新人 农场搭好了 来看'],
+  ['choice','看看农场',[
+    {t:'厉害啊 这条流水线绝了', eff:{yu:2,c30586:1}, goto:'s_mc3'},
+    {t:'我再给你加个自动分类', eff:{yu:1,g:1}, goto:'s_mc3'},
+  ]],
+  ['label','s_mc3'],
+  ['msg','yu','你比他们会玩'],
+  ['msg','yu','下次还来吗'],
+  ['jump','hub'],
+
+  /* ---- 支线：拼机出勤 ---- */
+  ['label','s_arc'],
+  ['bgm','chat'],
+  ['card','g'],
+  ['msg','g','来了 我教你打这张 12'],
+  ['msg','mianbao','我是拍框大王 别学我'],
+  ['msg','g','尾杀 手序 别炸'],
+  ['choice','打一轮',[
+    {t:'我试试 打不过也无所谓', eff:{g:2}, goto:'s_arc2'},
+    {t:'这不有手就行', goto:'BE02'},
+    {t:'我不行 我太菜了', eff:{g:1,shei:1}, goto:'s_arc2'},
+  ]],
+  ['label','s_arc2'],
+  ['msg','g','行 比某些人老实'],
+  ['msg','mianbao','TA 心态可以 加个好友'],
+  ['choice','要不要加好友',[
+    {t:'加 下次还一起出勤', eff:{g:1,mianbao:2}, goto:'s_arc3'},
+    {t:'再说吧 我最近有点忙', eff:{mianbao:-1}, goto:'s_arc3'},
+  ]],
+  ['label','s_arc3'],
+  ['msg','g','加都加了 别装死'],
+  ['jump','hub'],
+
+  /* ---- 支线：通宵写谱 ---- */
+  ['label','s_chart'],
+  ['bgm','night'],
+  ['card','shisuan'],
+  ['msg','shisuan','你陪我写会儿谱吧 一个人真写不下去'],
+  ['msg','g','我监督他 别摆烂'],
+  ['msg','shisuan','左手食指又起硬皮了'],
+  ['choice','怎么回',[
+    {t:'歇会儿吧 谱子明天再写', eff:{shisuan:2}, goto:'s_chart2'},
+    {t:'这段再改改 节奏有点赶', eff:{shisuan:1,g:1}, goto:'s_chart2'},
+    {t:'写谱有啥意思 打游戏不香吗', eff:{shisuan:-1}, goto:'s_chart2'},
+  ]],
+  ['label','s_chart2'],
+  ['msg','shisuan','好久没人陪我写到这么晚了'],
+  ['msg','shisuan','你也在群里多待待吧'],
+  ['jump','hub'],
+
+  /* ---- 支线：干饭 ---- */
+  ['label','s_food'],
+  ['bgm','chat'],
+  ['card','cat'],
+  ['msg','cat','走 麦当劳 我请'],
+  ['msg','yu','我要嫩牛五方'],
+  ['msg','shei','有没有不用 token 不用吃饭也能帮我干活的'],
+  ['msg','cat','没有 滚'],
+  ['choice','点单',[
+    {t:'我要巨无霸 加个麦旋风', eff:{cat:1,shei:1}, goto:'s_food2'},
+    {t:'学姐我来买单', eff:{cat:2}, goto:'s_food2'},
+    {t:'讲个黄段子下饭', goto:'BE05'},
+  ]],
+  ['label','s_food2'],
+  ['msg','cat','新人还行 能处'],
+  ['msg','yu','下次带你去新开的那家'],
+  ['jump','hub'],
+
+  /* ---- 支线：怪猎 ---- */
+  ['label','s_mh'],
+  ['bgm','chat'],
+  ['card','shiban'],
+  ['msg','shiban','来打猎 我最近菜到神他妈牛逼了'],
+  ['msg','shiban','不会 DA 开头 你别笑我'],
+  ['choice','怎么回',[
+    {t:'没事 我带你 慢慢来', eff:{shiban:2}, goto:'s_mh2'},
+    {t:'我也不会 菜鸡互啄', eff:{shiban:1}, goto:'s_mh2'},
+    {t:'你这也太菜了吧', eff:{shiban:-1}, goto:'s_mh2'},
+  ]],
+  ['label','s_mh2'],
+  ['msg','shiban','你可比群里那帮人有耐心'],
+  ['msg','shiban','以后缺人喊我'],
+  ['jump','hub'],
+
+  /* ---- 支线：反派蘑菇汤 ---- */
+  ['label','s_moku'],
+  ['bgm','tension'],
+  ['card','moku'],
+  ['msg','moku','新人 看你两天了 挺会来事啊'],
+  ['msg','moku','这群里没一个好东西 尤其你们群主'],
+  ['choice','怎么接',[
+    {t:'群主挺护着大家的 你别乱说', eff:{nanao:2}, goto:'s_moku_a'},
+    {t:'好像是有点 哈哈', set:'mokuJoin', eff:{moku:1}, goto:'s_moku_b'},
+    {t:'有事说事 别在群里阴阳怪气', goto:'s_moku_c'},
+  ]],
+  ['label','s_moku_a'],
+  ['msg','moku','护着？你也一样 天真得可怜'],
+  ['msg','moku','那我先拿你开刀吧'],
+  ['be','BE19'],
+  ['label','s_moku_b'],
+  ['msg','moku','这就对了 跟着我 没人敢说你'],
+  ['msg','moku','来 我们把群主那点破事做成表情包'],
+  ['note','你开始学着 TA 的语气说话。你比谁都清楚这样不对。'],
+  ['be','BE20'],
+  ['label','s_moku_c'],
+  ['msg','moku','……'],
+  ['msg','moku','有意思 你是这个群里第一个这么跟我说话的'],
+  ['msg','moku','行 这次放过你'],
+  ['note','蘑菇汤把你从仇人名单上划掉了。这在群里是个没人达成过的成就。'],
+  ['jump','hub'],
+
+  /* ======== 第三章 · 群活动 ======== */
+  ['label','ch3'],
+  ['bgm','chat'],
+  ['sys','一周后'],
+  ['msg','nanao','@全体成员 就今晚 MC 服 谁不来我解散群'],
+  ['msg','g','又来了又来了'],
+  ['msg','cat','来'],
+  ['msg','yu','来'],
+  ['msg','shei','来'],
+  ['msg','shisuan','写完了 来'],
+  ['msg','tttt','算我一个'],
+  ['msg','nanao','新人 你拉人拉了好几天了 今晚别掉链子'],
+  ['choice','今晚',[
+    {t:'放心 我一个个 @过去 保证满员', eff:{nanao:2,g:1,tttt:1,shei:1,yu:1,cat:1,shisuan:1}, set:'actGood', goto:'ch3b'},
+    {t:'我尽量叫人吧', eff:{nanao:1}, goto:'ch3b'},
+    {t:'算了我今晚有事', eff:{nanao:-2}, set:'actSkip', goto:'ch3b'},
+  ]],
+  ['label','ch3b'],
+  ['sys','当晚 MC 服上线人数'],
+  ['msg','nanao','……居然满员了'],
+  ['msg','cat','一条鱼说这是她见过最热闹的一次'],
+  ['msg','yu','新人 下次还来'],
+  ['msg','nanao','……谢了'],
+  ['note','闹七第一次没有说 我很伤心。'],
+  ['ending'],
+
+  /* ======== 结局标签 ======== */
+  ['label','BE01'],['be','BE01'],
+  ['label','BE02'],['be','BE02'],
+  ['label','BE05'],['be','BE05'],
+  ['label','BE17'],['be','BE17'],
+  ['label','BE19'],['be','BE19'],
+  ['label','BE20'],['be','BE20'],
+  ['label','BE24'],['be','BE24'],
+];
+
+/* ---------- 结局文本 ---------- */
+const BEDATA = {
+  BE01:{tag:'BAD END', title:'BE-01 老傻子',
+    text:'你回了句 你凭什么骂我。\n群里安静了半秒 然后整齐地刷起 老傻子。\n闹七出来打圆场：行了 谁没当过新人 别欺负人家。\n她没踢你 一个管理动作都没有。\n\n可你越想越难受。\n第二天 你自己退了群。'},
+  BE02:{tag:'BAD END', title:'BE-02 越级骂谱',
+    text:'你评价 G 的谱 配置稀烂。\nG 甩出三个版本的成绩截图 面包补刀一句 我是拍框大王。\n你被当成 又一个糊弄谱面的人。\n\n在这个群 装逼的代价 比卖弱高得多。'},
+  BE05:{tag:'BAD END', title:'BE-05 成年话题',
+    text:'你刚打出半句 黄油猫的回复就压了上来 把整段截断。\n她只留了一句 她听不懂这个 然后 @了管理。\n三分钟后 你的消息全被撤回。\n\n一条鱼没说话。但黄油猫记住了你。'},
+  BE17:{tag:'BAD END', title:'BE-17 面包没了',
+    text:'她抱着面包 笑着说 面包是我的。你伸手碰了一下。\n她还是笑着 但从此你的每条消息\n都只会收到一个 允许你出了吗。\n再没有别的。'},
+  BE19:{tag:'BAD END', title:'BE-19 被挂',
+    text:'你替群主说了句公道话。\n当晚 一张你的表情包在好几个群里传开 配字是蘑菇汤起的。\n第二天 连不认识的人都在用。\n\n你主动退了群。比被踢出去 体面那么一点点。'},
+  BE20:{tag:'BAD END', title:'BE-20 同化',
+    text:'你开始学 TA 的语气 专挑最软的人下嘴。\n某天 全群整齐地开始复读你的名字。\n用的是当初对付 TA 的方式。\n\n你终于成了群里那个人 然后被踢了出去。'},
+  BE24:{tag:'BAD END', title:'BE-24 刷屏',
+    text:'你把同一句话刷了第三遍。\n闹七没有生气 只是按群规把你禁言了：\n规矩就是规矩 新人 冷静十分钟。\n\n群里没人笑你。\n但你的输入框灰了 那句想说的话 打不出去了。'},
+  BE10:{tag:'BAD END', title:'BE-10 我很伤心',
+    text:'你放了这个群的鸽子。\n那晚闹七只发了一句话：我很伤心。\n没有 @任何人 也没有后续。\n\n那个天天喊着要解散群的人 这次自己安静了。'},
+  BE23:{tag:'BAD END', title:'BE-23 第 81 人',
+    text:'没有冲突 没有翻车 也没有人记住你。\n群成员从 81 悄悄变回 80。\n你在群里说的最后一句话 是很多天前的那句你好。\n\n没有人回复。就像你从没来过。'},
+};
+
+const ENDING = {
+  nanao:{title:'闹七线 · 那个没被解散的群',
+    text:'活动结束后 闹七难得没喊解散。\n她私聊你：\n下次开服 记得早点来。\n\n她嘴上还是那副样子。\n可这个群 今晚第一次满员。'},
+  yu:{title:'鱼猫线 · 第三把椅子',
+    text:'一条鱼给你留了个位置 就在她和黄油猫中间。\n黄油猫瞥了你一眼 没赶你走。\n坐吧 别乱动鱼的东西。\n\n你成了她们两个人的第三把椅子。'},
+  cat:{title:'鱼猫线 · 守门猫放你进来了',
+    text:'黄油猫把一条鱼往你那边推了推。\n她嘴上说 借你带一天。\n转身又回头补了一句 别弄哭她。\n\n她把最宝贝的人 分了你一半。'},
+  g:{title:'G线 · 别把我当老傻子',
+    text:'G 把新谱私发给了你 只有你一份。\n她只写了两个字 看看。\n\n你知道 这两个字 她憋了很久。\n她最怕的 从来不是被骂 是被敷衍。'},
+  shisuan:{title:'石蒜线 · 群里的人',
+    text:'石蒜第一次主动问你要了联系方式。\n现实里的那种。\n你说好。\n\n他笑得像个终于走出房间的人。'},
+  tttt:{title:'Tttt线 · 面包自由',
+    text:'Tttt 把面包掰了一半塞给你。\n她说 允许你出了。\n\n群里瞬间炸了——\n这是她第一次分面包。'},
+  shei:{title:'誰线 · 第七个存档',
+    text:'誰关掉了她的攻略文档。\n奇怪 这一条我没写剧本。\n……算你通关了 恭喜。\n\n她第一次 没有删档。'},
+};
+
+/* ---------- 状态 & 引擎 ---------- */
+const AFFKEYS = ['nanao','yu','cat','g','shisuan','tttt','shei','shiban','taffy','c30586','mianbao'];
+const MAIN = ['nanao','yu','cat','g','shisuan','tttt','shei'];
+const state = { aff:{}, flags:{}, water:0, members:81, hub:{}, lastRepeat:'', repeatN:0 };
+const labelIdx = {};
+S.forEach((n,i)=>{ if(n[0]==='label') labelIdx[n[1]]=i; });
+
+let ip = 0, busy = false, fast = false, lastLine = '';
+const $ = id => document.getElementById(id);
+const chat = $('chat'), composer = $('composer');
+
+function resetState(){
+  state.aff={}; AFFKEYS.forEach(k=>state.aff[k]=0);
+  state.flags={}; state.water=0; state.members=81; state.hub={};
+  state.lastRepeat=''; state.repeatN=0;
+  ip=0; busy=false; lastLine='';
+  chat.innerHTML=''; composer.innerHTML='<div class="c-idle">……</div>';
+  updateTop(); renderMembers();
+}
+function updateTop(){ $('mCount').textContent = state.members; $('mWater').textContent = state.water; }
+const wait = ms => new Promise(r => setTimeout(r, fast ? Math.min(ms,60) : ms));
+function scroll(){ chat.scrollTop = chat.scrollHeight; }
+function toast(msg){
+  const d=document.createElement('div'); d.className='toast'; d.textContent=msg;
+  $('toasts').appendChild(d); setTimeout(()=>d.remove(),1750);
+}
+function setStage(key){ $('stageSil').innerHTML = key ? sil(key,520) : ''; }
+
+async function pushMsg(key, text, delay){
+  const who = CHARS[key] || {name:key, emoji:'💬', color:'#888'};
+  const me = (key==='me');
+  const wrap = document.createElement('div'); wrap.className='msg'+(me?' me':'');
+  wrap.innerHTML = me
+    ? `<div class="body"><div class="bub"></div></div>`
+    : `<div class="av" style="background:${hex2rgba(who.color,.14)};border-color:${hex2rgba(who.color,.4)}">${who.emoji}</div>
+       <div class="body"><div class="nm">${esc(who.name)}<span class="role">${esc(who.role||'')}</span></div><div class="bub"></div></div>`;
+  wrap.querySelector('.bub').textContent = text;
+  chat.appendChild(wrap); scroll();
+  if(!me) lastLine = text;
+  sfx('msg');
+  await wait(delay==null?520:delay);
+}
+async function pushMe(text){ await pushMsg('me', text, 280); }
+async function pushSys(text){
+  const d=document.createElement('div'); d.className='sys'; d.innerHTML=`<span>${esc(text)}</span>`;
+  chat.appendChild(d); scroll(); await wait(560);
+}
+async function pushNote(text){
+  const d=document.createElement('div'); d.className='note'; d.textContent=text;
+  chat.appendChild(d); scroll(); await wait(680);
+}
+async function pushCard(key){
+  const c=CHARS[key]; const d=document.createElement('div'); d.className='card';
+  d.innerHTML=`<div class="sil">${sil(key,76)}</div>
+    <div class="cinfo"><h4>${esc(c.name)}<span style="font-size:11px;color:var(--dim)">${esc(c.sub||'')}</span></h4>
+    <div class="r">${esc(c.role||'')}</div><p>${esc(c.desc||'')}</p></div>`;
+  chat.appendChild(d); scroll(); setStage(key); sfx('card'); await wait(760);
+}
+
+function applyEff(eff){
+  if(!eff) return; const deltas=[];
+  for(const k in eff){
+    if(state.aff[k]==null){ if(CHARS[k]&&CHARS[k].hero) state.aff[k]=0; else continue; }
+    state.aff[k]=Math.max(0, state.aff[k]+eff[k]);
+    if(eff[k]>0) deltas.push('❤ '+CHARS[k].name+' +'+eff[k]);
+    else if(eff[k]<0) deltas.push('💔 '+CHARS[k].name+' '+eff[k]);
+  }
+  if(deltas.length) toast(deltas.join('　'));
+  renderMembers(); updateTop();
+}
+function stageOf(a){ return a<=0?'无视': a<=2?'眼熟': a<=4?'嘴替': a<=6?'宝宝':'沦陷'; }
+function renderMembers(){
+  const box=$('drList'); if(!box) return;
+  box.innerHTML = AFFKEYS.map(k=>{
+    const c=CHARS[k], a=state.aff[k]||0, pct=Math.min(100,a/8*100);
+    return `<div class="dr-row">
+      <div class="av" style="background:${hex2rgba(c.color,.14)};border-color:${hex2rgba(c.color,.4)}">${c.emoji}</div>
+      <div class="dr-mid"><div class="t">${esc(c.name)}</div><div class="s">${esc(c.role)}</div>
+      <div class="bar"><i style="width:${pct}%"></i></div></div>
+      <div class="dr-stage">${stageOf(a)}</div></div>`;
+  }).join('') + `<div class="dr-row" style="opacity:.7">
+      <div class="av">🧑‍🔧</div><div class="dr-mid"><div class="t">根哥 · aka · 蘑菇汤</div>
+      <div class="s">助攻 / 反派 · 暂未开放攻略</div></div></div>`;
+}
+
+function goLabel(name){
+  const idx = labelIdx[name];
+  if(idx==null){ showEnding(); return; }
+  ip = idx; setTimeout(play, 200);
+}
+
+function renderChoice(prompt, options){
+  composer.innerHTML='';
+  const p=document.createElement('div'); p.className='c-prompt'; p.textContent=prompt; composer.appendChild(p);
+  options.forEach(o=>{
+    const b=document.createElement('button'); b.className='choice'; b.textContent=o.t;
+    b.onclick=()=>{
+      composer.innerHTML='<div class="c-idle">……</div>';
+      pushMe(o.say!=null?o.say:o.t);
+      if(o.set) state.flags[o.set]=true;
+      if(o.eff) applyEff(o.eff);
+      goLabel(o.goto);
+    };
+    composer.appendChild(b);
+  });
+}
+function renderHub(prompt, options){
+  composer.innerHTML='';
+  const p=document.createElement('div'); p.className='c-prompt'; p.textContent=prompt; composer.appendChild(p);
+  options.forEach(o=>{
+    if(o.once && state.hub[o.t]) return;
+    const b=document.createElement('button'); b.className='choice'; b.textContent=o.t;
+    b.onclick=()=>{
+      composer.innerHTML='<div class="c-idle">……</div>';
+      if(o.once) state.hub[o.t]=true;
+      if(o.eff) applyEff(o.eff);
+      if(o.set) state.flags[o.set]=true;
+      goLabel(o.goto);
+    };
+    composer.appendChild(b);
+  });
+}
+
+async function play(){
+  if(busy) return; busy=true;
+  while(ip < S.length){
+    const n=S[ip++]; const t=n[0];
+    if(t==='label') continue;
+    else if(t==='msg'){ await pushMsg(n[1], n[2]); }
+    else if(t==='sys'){ await pushSys(n[1]); }
+    else if(t==='note'){ await pushNote(n[1]); }
+    else if(t==='card'){ await pushCard(n[1]); }
+    else if(t==='bgm'){ BGM.set(n[1]); }
+    else if(t==='aff'){ applyEff(n[1]); }
+    else if(t==='set'){ state.flags[n[1]]=true; }
+    else if(t==='jump'){ ip = labelIdx[n[1]]; }
+    else if(t==='choice'){ busy=false; return renderChoice(n[1], n[2]); }
+    else if(t==='hub'){ busy=false; return renderHub(n[1], n[2]); }
+    else if(t==='be'){ busy=false; return showBE(n[1]); }
+    else if(t==='ending'){ busy=false; return showEnding(); }
+  }
+  busy=false;
+}
+
+/* ---------- 结局 ---------- */
+function openOverlay(html, cls){
+  $('ovCard').className='ov'+(cls?' '+cls:'');
+  $('ovCard').innerHTML=html;
+  $('overlay').classList.remove('hidden');
+}
+function closeOverlay(){ $('overlay').classList.add('hidden'); }
+function restartBtns(){
+  return `<div class="btns">
+    <button class="btn primary" id="ovRestart">从头再来</button>
+    <button class="btn" id="ovTitle">返回标题</button></div>`;
+}
+function wireRestart(){
+  const r=$('ovRestart'), t=$('ovTitle');
+  if(r) r.onclick=()=>{ closeOverlay(); BGM.set('chat'); startGame(); };
+  if(t) t.onclick=backToTitle;
+}
+function showBE(id){
+  BGM.set('tension'); setStage(null);
+  const b = BEDATA[id] || {tag:'BAD END', title:id, text:''};
+  openOverlay(`<div class="tag">${esc(b.tag)}</div><h2>${esc(b.title)}</h2>
+    <p>${esc(b.text)}</p>${restartBtns()}`, 'be-ov');
+  wireRestart();
+}
+function showEnding(){
+  setStage(null);
+  const total = AFFKEYS.reduce((s,k)=>s+(state.aff[k]||0),0);
+  if(state.flags.actSkip && total<=6) return showBE('BE10');
+  if(total<=4) return showBE('BE23');
+  let top=MAIN[0]; MAIN.forEach(k=>{ if((state.aff[k]||0)>(state.aff[top]||0)) top=k; });
+  const e = ENDING[top] || ENDING.nanao;
+  BGM.set('warm');
+  const sum = AFFKEYS.map(k=>`${CHARS[k].name}：<b>${stageOf(state.aff[k]||0)}</b>`).join('　');
+  openOverlay(`<div class="tag">END · 路线序章</div><h2>${esc(e.title)}</h2>
+    <p>${esc(e.text)}</p>
+    <div class="stat-sum">当前沦陷度<br>${sum}<br><br>
+    <span style="color:var(--dim)">水群值：<b>${state.water}</b> ｜ 群成员：<b>${state.members}</b></span></div>
+    <div class="btns"><button class="btn primary" id="ovRestart">从头再来</button>
+    <button class="btn" id="ovTitle">返回标题</button></div>
+    <p style="margin-top:16px;font-size:12px;color:var(--dim)">※ 本条为路线序章，个人线好结局按企划要求暂未撰写。游戏内可触发 9 个 Bad End。</p>`, 'end-ov');
+  wireRestart();
+}
+function showAbout(){
+  openOverlay(`<div class="tag">ABOUT</div><h2>关于 &amp; 素材</h2>
+    <p>《😂群聊 · 全群攻陷计划》单文件可玩 Demo，无需服务器、无需联网。</p>
+    <p style="margin-top:12px"><b style="color:var(--cyan)">立绘</b>：CSS / SVG 现场绘制的半透明纯色剪影，不含外部图片。</p>
+    <p style="margin-top:10px"><b style="color:var(--cyan)">BGM</b>：内置 Web Audio 实时合成，免版权、离线可播。若替换为真实开源曲目，可参考下列来源并保留署名：</p>
+    <p style="margin-top:10px">
+      · <a href="https://dova-s.jp/en/" target="_blank">DOVA-SYNDROME</a> 免费 BGM，可商用、无需署名<br>
+      · <a href="https://opengameart.org/content/yoiyami-core-theme-%E2%80%93-deep-blue-ambient-piano" target="_blank">OpenGameArt · Yoiyami Core Theme（CC0）</a><br>
+      · <a href="https://potat0master.itch.io/free-background-music-for-visual-novels-bgm-pack-1" target="_blank">Potat0Master · Free VN BGM Pack</a>
+    </p>
+    <p style="margin-top:12px;color:var(--dim);font-size:12.5px">玩法提示：顶部「复读」可涨水群值，但同一句话连续刷屏 3 次会被禁言。</p>
+    <div class="btns"><button class="btn primary" id="ovClose">开始游戏</button>
+    <button class="btn" id="ovClose2">返回</button></div>`);
+  $('ovClose').onclick=()=>{ closeOverlay(); startGame(); };
+  $('ovClose2').onclick=closeOverlay;
+}
+
+/* ---------- 音效 ---------- */
+let earCtx=null;
+function sfx(kind){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    if(!earCtx) earCtx=new AC();
+    const t=earCtx.currentTime, o=earCtx.createOscillator(), g=earCtx.createGain();
+    o.connect(g); g.connect(earCtx.destination);
+    if(kind==='card'){ o.type='triangle'; o.frequency.setValueAtTime(660,t); o.frequency.exponentialRampToValueAtTime(990,t+0.12); g.gain.setValueAtTime(0.05,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.18); o.start(t); o.stop(t+0.2); }
+    else { o.type='sine'; o.frequency.setValueAtTime(1180,t); g.gain.setValueAtTime(0.025,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.07); o.start(t); o.stop(t+0.08); }
+  }catch(e){}
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function hex2rgba(hex,a){ const h=hex.replace('#',''); const n=parseInt(h.length===3?h.split('').map(x=>x+x).join(''):h,16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
+
+/* ---------- 启动 ---------- */
+let started=false;
+function startGame(){
+  $('title').classList.add('hidden');
+  $('game').classList.remove('hidden');
+  resetState();
+  started=true;
+  BGM.set('chat'); BGM.start('chat');
+  ip=0; play();
+}
+function backToTitle(){
+  closeOverlay();
+  $('game').classList.add('hidden');
+  $('title').classList.remove('hidden');
+  setStage(null);
+}
+
+$('btnStart').onclick=()=>{ BGM.start('chat'); startGame(); };
+$('btnAbout').onclick=showAbout;
+$('btnBgmTitle').onclick=()=>{ const on=BGM.toggle(); $('btnBgmTitle').textContent='🔊 音乐：'+(on?'开':'关'); };
+$('btnBgm').onclick=()=>{ const on=BGM.toggle(); $('btnBgm').textContent=on?'🔊':'🔇'; };
+$('btnMembers').onclick=()=>{ renderMembers(); $('drawer').classList.add('open'); };
+$('btnCloseDr').onclick=()=>$('drawer').classList.remove('open');
+$('btnFast').onclick=()=>{ fast=!fast; $('btnFast').textContent=fast?'快进:开':'快进'; toast(fast?'已开启快进':'已关闭快进'); };
+
+$('btnRepeat').onclick=()=>{
+  if(!started || !lastLine){ toast('还没有可以复读的消息'); return; }
+  // 刷屏检测：同一句话连续复读
+  if(lastLine===state.lastRepeat){ state.repeatN++; }
+  else { state.lastRepeat=lastLine; state.repeatN=1; }
+  pushMe(lastLine);
+  state.water++; updateTop();
+  if(state.repeatN>=3){ return showBE('BE24'); }
+  if(state.repeatN===2){ toast('再复读一次 要被禁言了'); }
+  else { toast('复读成功  +1 水群值'); }
+};
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){ $('drawer').classList.remove('open'); closeOverlay(); }
+});
+
+renderMembers();
+</script>
+</body>
+</html>
