@@ -1,0 +1,22 @@
+{
+  "slug": "mianbao",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:28Z",
+  "sources_summarized": [
+    "对话集 dialogues/键鼠交互_430684039.md（152 条 · 10-08 15:31 ~ 10-10 21:36）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "b2841e82b649a56e8640fff966405ecd57bfc97f9c9e6ca034a1368af89ffb41",
+    "interaction.md": "345415dc92bd57c730034907b373e564a8550e1d361a8c0a1c895fa33b051aa0",
+    "memory.md": "5903b68477c7a415bc6ae5e901b96e99965b6b0fb3b952a6915fc21ff9688c99",
+    "conflicts.md": "1542b628665c0e11ef42027085bd3f47fc3486f6f4636bfadb618848838b5adf",
+    "SKILL.md": "bcbda5fa280f8f9e62dc0a3fbaa0aaef7634c977a46dc721f406f0b14ce7fa62"
+  }
+}

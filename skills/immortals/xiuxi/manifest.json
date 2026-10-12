@@ -1,0 +1,22 @@
+{
+  "slug": "xiuxi",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:29Z",
+  "sources_summarized": [
+    "对话集 dialogues/休息段也很多难点是绝赞较多_2194145484.md（74 条 · 10-08 18:01 ~ 10-10 23:33）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "9a62f360a240014d090d56e88a80fbadcfa8ba0e655081119bf4e02ef1608e7d",
+    "interaction.md": "7698680bc54696c892ec53239e05b4a79f02e6a7d265b0bfff15eac353f99b07",
+    "memory.md": "3be4cefa44a2909ee984ebb437e79a5a36610792f055318863417ae8f0c74087",
+    "conflicts.md": "088c749dd9b673338830c5532aa9dce2cab3437337e5290fffbcb44d3314411a",
+    "SKILL.md": "b8a105c16996312e589ac4b63bf38469a25a7dab9dd54f970aca65944dfb20f9"
+  }
+}

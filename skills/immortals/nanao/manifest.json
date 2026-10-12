@@ -1,0 +1,22 @@
+{
+  "slug": "nanao",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:28Z",
+  "sources_summarized": [
+    "对话集 dialogues/我的弱小被你们说是狗叫，，_3433786233.md（1153 条 · 10-08 14:33 ~ 10-10 23:27）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "61a8d02cd8efd843f4687cb65180e40406d95b9744e34b6f8fa3548b859a59c9",
+    "interaction.md": "42c1928942ef9d2ecb0ac3f9b4771adf32b31957ddd9abfd7fa80850f37ad1f8",
+    "memory.md": "39587506a8975daa1827918da15711f57ba1a905a5b676e114eeb1ff5b7a650a",
+    "conflicts.md": "a594069a9deacafa3ffafeef91b77cbff5584439b372a8da05bdbf88eefe0030",
+    "SKILL.md": "2843731726a8684e49e70c32054fda68de3edd3ed23ae31da596eedfaac260c9"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "c30586",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:27Z",
+  "sources_summarized": [
+    "对话集 dialogues/3237lluN_3042435218.md（146 条 · 10-08 15:00 ~ 10-10 22:34）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "b55e01bb9beedbaf37e37fb30cde478402c61261af957d4b1a03295b0cedc823",
+    "interaction.md": "16f91229df1bcc3b07c90027e3733c5b5b6cb7e7b8d41b7747c23b639b53cc7a",
+    "memory.md": "755cccf8c70493f3885a85b1cb431302ce881336bcdd2e286919ee9934f64340",
+    "conflicts.md": "0212c7720777a934d387ff9875a69bc5c1ebca798b8ee505568b0485b908b0a7",
+    "SKILL.md": "51bd170b4112fc9db52ee0a50d41dae2f6b9c60c450bf80b85ca801d43c85272"
+  }
+}

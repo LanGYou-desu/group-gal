@@ -1,0 +1,22 @@
+{
+  "slug": "shei",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:28Z",
+  "sources_summarized": [
+    "对话集 dialogues/蛋蛋。。。_1478863784.md（233 条 · 10-08 16:22 ~ 10-10 23:14）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "efa977b9ac00e04615ee96d7c341c6002997d87363e4b2fe4d1c27bfa0693bf6",
+    "interaction.md": "add626ba0600a5f4a8b8a4ef63bd5f913f8f3d0c5883258f9dc05ad2cdd1dff2",
+    "memory.md": "9655e104ff62dd02206351d1b193bd2e3795ebab8621e9cee2089cf4cdd38711",
+    "conflicts.md": "050ecfa6349be93831000ec2a42744ada4beea21d7d003e55d129515c42512c9",
+    "SKILL.md": "bbcc5638daeddec4b0a10fb31bd194e22d8a32461a548cb76e9aa192c3108ff1"
+  }
+}

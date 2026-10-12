@@ -1,0 +1,22 @@
+{
+  "slug": "moku",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:28Z",
+  "sources_summarized": [
+    "对话集 dialogues/藤原氏蘑菇汤_2054013788.md（73 条 · 10-08 18:25 ~ 10-10 20:15）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "207de422994e9a83dd7966eff81e4ea75df69a6b78410b6cb3b23e47d737eae3",
+    "interaction.md": "dcab11a14afb0af54d32946617a4a7a4dfa235bc80ac2b8277fa6eef3fcbadbe",
+    "memory.md": "592e324fa74564433b8172bfb7f18e883e73eff8fadbc1063549848135f73309",
+    "conflicts.md": "c49cc8885d3339d7decac0165d9a15209424e9b9b3b2bec7acfc2db81fb17c67",
+    "SKILL.md": "5aa6e38e2240863f3c084461e0f41984d679ac20549b18db745d6ca40c27affd"
+  }
+}

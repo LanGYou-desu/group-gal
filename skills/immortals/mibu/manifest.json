@@ -1,0 +1,22 @@
+{
+  "slug": "mibu",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:28Z",
+  "sources_summarized": [
+    "对话集 dialogues/咪猫布_3569177448.md（88 条 · 10-08 16:12 ~ 10-10 20:08）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "a5a33587bbc8d2b8d76afba6d09a12fbdae9e7ea2735739629816b4bee5ff772",
+    "interaction.md": "29c4d2181515c381e104bb203a0b2a25a497ef06e110459cf97feb97f4e5b591",
+    "memory.md": "f2037493294dcd76386169fdf51cd0085410af7e7616590308bf3cf293af5f66",
+    "conflicts.md": "1f3d20ba780b753eeeedb5c433049a609f4dff6071d62ab385f10d14bd649847",
+    "SKILL.md": "1f6eb93e082fe353ce4711025bf4eb18e84930d373b7966c5f52c04555aebe1a"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "shisuan",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:28Z",
+  "sources_summarized": [
+    "对话集 dialogues/我的父亲是根哥_2937622574.md（322 条 · 10-08 15:00 ~ 10-10 23:11）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "59238a7c0269bfed13d8ee0bafe9a7ef5d5850635a26ccf2c0f1b71b64573ca3",
+    "interaction.md": "07bbe648751afac64e9e03b7da814b7d395d8d341771594f2affb58cbd6ada5e",
+    "memory.md": "770ede1ff928a83a2a4c093a1d399a609fc72ba5af7c2f485bf51b3e19069f1e",
+    "conflicts.md": "3c37c1db118eba4c8292bbbb34cc87cc25957444b3cde584ad3ea6f7c2ecc01c",
+    "SKILL.md": "6af4575db8b35c71917c4d17d68fb0140bc3caa7b29859dfd965799a176b31ee"
+  }
+}

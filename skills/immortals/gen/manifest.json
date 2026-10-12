@@ -1,0 +1,22 @@
+{
+  "slug": "gen",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:27Z",
+  "sources_summarized": [
+    "对话集 dialogues/unity实训开发_1696226367.md（151 条 · 10-08 14:55 ~ 10-10 22:03）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "8e74523f9572c9cb3a6e8faad264c27697fe66fd7738e823083b70bb93669edb",
+    "interaction.md": "e459d0ef5b460bb198ed648bc7f891408b5b06535296ae809bcc9e5ca03ec309",
+    "memory.md": "644e5fe239f21926c1fe52f832c8508bbe2e1cd554619c862e90f7281cdb7268",
+    "conflicts.md": "e96693f3b46da9fbfbaf845b2493615074ddfe541cd68d05bba32ac1e3be4b05",
+    "SKILL.md": "118ac2a3443d121c601c2709014c41148fa5b08fe4ba3ddbe6af10ef575b863e"
+  }
+}

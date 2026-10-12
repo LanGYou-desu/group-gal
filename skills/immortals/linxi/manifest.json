@@ -1,0 +1,22 @@
+{
+  "slug": "linxi",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:27Z",
+  "sources_summarized": [
+    "对话集 dialogues/凛～～熙_2484501006.md（66 条 · 10-09 15:36 ~ 10-10 22:51）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "026a6bd25e29104fe75517d40d94cb032e58c52f0d03ca9f0a7ab53a81066661",
+    "interaction.md": "a538f38be35fc9a343272ba4700bf747c396f4ef86d9401230db1c85db8f55d6",
+    "memory.md": "0f7c74ecfd3bae4d156d79ed01013c94d0ea8bf2d314f697cc85dfd075820d34",
+    "conflicts.md": "89cddd0a96370c73eafc7e1b04f473705ca6ee38cb67f9fe9127ce51545137a5",
+    "SKILL.md": "32c34d314a7c09368609d36da9356f2c8248d5dfa884ef2c383acf30d4a2041d"
+  }
+}

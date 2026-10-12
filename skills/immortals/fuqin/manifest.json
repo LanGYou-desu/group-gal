@@ -1,0 +1,22 @@
+{
+  "slug": "fuqin",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:27Z",
+  "sources_summarized": [
+    "对话集 dialogues/根哥是我的父亲_1993307050.md（543 条 · 10-08 16:14 ~ 10-10 22:36）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "cfdd547b9a88699e45805807787233952e838bca02cc7281b287d5457a07bfe0",
+    "interaction.md": "4104ce327348291c3811b62822677e73775530340a3cf8382877e1524329f6f2",
+    "memory.md": "abce09f465b9eadb2a26825a6e8e4512b3a53b80d0f77d94784b8c770681c280",
+    "conflicts.md": "c547c127ecb19b74b889604680ebd90321f68b520d0f5ea19940535ca0213809",
+    "SKILL.md": "f9669bf39f82ec48efb0e444b6787b73c78f3fc1fd8f6afb4c561b0a6bf4f63f"
+  }
+}

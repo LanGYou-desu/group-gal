@@ -1,0 +1,22 @@
+{
+  "slug": "aka",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:27Z",
+  "sources_summarized": [
+    "对话集 dialogues/aka_2156285785.md（177 条 · 10-08 14:33 ~ 10-10 22:24）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "3f07ebd9643f070d5dee29a7c5eb14926856527b6ae7168fedf06c901af602d3",
+    "interaction.md": "7d8b321dbec04ac20eb8923c887ef57effcac37f65b244de37f0157b3440e31f",
+    "memory.md": "dab2cf4c18e9ac02de1f2fb9c415432dbc63616958b98e0336d8beae98453cd3",
+    "conflicts.md": "29e7ee402052dd72937fb5c7969cec7eb0630337225d3b52652b1cd6240913c3",
+    "SKILL.md": "209316337b83d3be91cb52cca6e2ac1bb3369be4b73f58f5cd5b1bb60f04996b"
+  }
+}

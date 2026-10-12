@@ -1,0 +1,22 @@
+{
+  "slug": "cat",
+  "persona": "friend",
+  "built_at": "2026-10-11T17:33:27Z",
+  "sources_summarized": [
+    "对话集 dialogues/黄油猫是我妈妈，_2929988459.md（883 条 · 10-08 15:31 ~ 10-10 21:24）；由 members.zip 按人拆分"
+  ],
+  "platforms": [],
+  "kit": "immortal-skill",
+  "dimensions": [
+    "interaction",
+    "memory",
+    "personality"
+  ],
+  "fingerprints": {
+    "personality.md": "8d93408c82448a27422fcb080f92c188030fb78d076682028efea6dc53e32e1b",
+    "interaction.md": "85dc05d43c4b17d8043b38b22fd1cb07c12988a8301837b0bd7c1b1e89ae902f",
+    "memory.md": "24aa0389fe0a4a9593047a3bd6665e3b7830c6ef39f9b59a77b32a5bf8b58f95",
+    "conflicts.md": "8c16351e210caa94e53ebc94fd51c0119555e6399d5ae8bdf061414ed9a56d1f",
+    "SKILL.md": "79eae7521c52ea23eefada79a2675853dd4ecdece66a79412b783df14cc9c263"
+  }
+}
